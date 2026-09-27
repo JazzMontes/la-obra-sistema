@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+frontend/node_modules/
+
+# Angular / Ionic
+.angular/
+frontend/.angular/
+www/
+frontend/www/
+
+# Archivos de entorno
+.env
+.env.*
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
