@@ -1,7 +1,7 @@
-import { Service } from '@angular/core';
+import { Injectable } from '@angular/core';
 import axios from 'axios';
 
-@Service()
+@Injectable({ providedIn: 'root' })
 export class Auth {
 
   private apiUrl = 'http://localhost/la-obra-sistema/backend';

@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>La Obra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <h1>Bienvenido, {{ user?.name }}</h1>
+
+  <p>
+    Usuario: {{ user?.username }}
+  </p>
+
+  <p>
+    Rol: {{ user?.role }}
+  </p>
+
+
+  <!-- OPCIONES DEL ADMINISTRADOR -->
+  <div *ngIf="user?.role === 'admin'">
+
+    <h2>Administración</h2>
+
+    <ion-button expand="block">
+      Gestión de usuarios
+    </ion-button>
+
+    <ion-button expand="block">
+      Productos
+    </ion-button>
+
+    <ion-button expand="block">
+      Compras
+    </ion-button>
+
+    <ion-button expand="block">
+      Gastos
+    </ion-button>
+
+    <ion-button expand="block">
+      Recetas y costos
+    </ion-button>
+
+    <ion-button expand="block">
+      Mermas
+    </ion-button>
+
+    <ion-button expand="block">
+      Cortes
+    </ion-button>
+
+  </div>
+
+
+  <!-- OPCIONES DISPONIBLES PARA EMPLEADO -->
+  <div *ngIf="user?.role === 'employee'">
+
+    <h2>Punto de venta</h2>
+
+    <ion-button expand="block">
+      Nueva venta
+    </ion-button>
+
+    <ion-button expand="block">
+      Cierre del día
+    </ion-button>
+
+  </div>
+
+</ion-content>

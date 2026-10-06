@@ -41,3 +41,81 @@ CREATE TABLE sessions (
         REFERENCES users(id)
         ON DELETE CASCADE
 );
+
+
+-- =====================================================
+-- SERVICIO DE PRODUCTOS Y COSTOS
+-- La Obra
+-- =====================================================
+
+
+-- =====================================================
+-- 1. CATEGORÍAS
+-- =====================================================
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'
+);
+
+
+-- =====================================================
+-- 2. PRODUCTOS
+-- =====================================================
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    category_id INT NOT NULL,
+    type ENUM('prepared', 'resale') NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    is_available BOOLEAN NOT NULL DEFAULT TRUE,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+
+    CONSTRAINT fk_products_category
+        FOREIGN KEY (category_id)
+        REFERENCES categories(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+
+-- =====================================================
+-- 3. INSUMOS
+-- =====================================================
+
+CREATE TABLE inputs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    unit VARCHAR(20) NOT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'
+);
+
+
+-- =====================================================
+-- 4. RECETAS
+-- =====================================================
+
+CREATE TABLE recipes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    input_id INT NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL,
+
+    CONSTRAINT fk_recipes_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_recipes_input
+        FOREIGN KEY (input_id)
+        REFERENCES inputs(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_recipe_product_input
+        UNIQUE (product_id, input_id)
+);

@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>La Obra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <h1>Iniciar sesión</h1>
+
+  <!-- Usuario -->
+  <ion-item>
+    <ion-input
+      label="Usuario"
+      labelPlacement="stacked"
+      type="text"
+      [(ngModel)]="username">
+    </ion-input>
+  </ion-item>
+
+  <!-- Contraseña -->
+  <ion-item>
+    <ion-input
+      label="Contraseña"
+      labelPlacement="stacked"
+      type="password"
+      [(ngModel)]="password">
+    </ion-input>
+  </ion-item>
+
+  <!-- Mensaje de error -->
+  <ion-text color="danger" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </ion-text>
+
+  <!-- Botón -->
+  <ion-button
+    expand="block"
+    (click)="login()"
+    [disabled]="loading">
+
+    {{ loading ? 'Iniciando...' : 'Iniciar sesión' }}
+
+  </ion-button>
+
+</ion-content>
