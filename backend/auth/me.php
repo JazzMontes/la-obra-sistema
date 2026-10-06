@@ -1,7 +1,7 @@
 <?php
 
 header("Content-Type: application/json");
-
+require_once __DIR__ . "/../config/cors.php";
 require_once __DIR__ . "/../config/database.php";
 
 // Obtener el método de la petición
