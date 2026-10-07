@@ -1,15 +1,28 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { ApiConfigService } from './api-config';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class Auth {
 
-  private apiUrl = 'http://localhost/la-obra-sistema/backend';
+  constructor(private apiConfig: ApiConfigService) {}
+
+  private get apiUrl(): string {
+    return this.apiConfig.getApiUrl();
+  }
 
   // =========================
   // INICIAR SESIÓN
   // =========================
   async login(username: string, password: string) {
+
+    // TEMPORAL: para revisar la conexión desde Android
+    console.log('===== DATOS DE CONEXIÓN =====');
+    console.log('API URL:', `${this.apiUrl}/auth/login.php`);
+    console.log('ORIGIN:', window.location.origin);
+    console.log('=============================');
 
     const response = await axios.post(
       `${this.apiUrl}/auth/login.php`,
@@ -26,7 +39,6 @@ export class Auth {
 
     const data = response.data;
 
-    // Guardar sesión si el login fue correcto
     if (data.success && data.token) {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -34,7 +46,6 @@ export class Auth {
 
     return data;
   }
-
 
   // =========================
   // REGISTRARSE
@@ -64,14 +75,12 @@ export class Auth {
     return response.data;
   }
 
-
   // =========================
   // OBTENER TOKEN GUARDADO
   // =========================
   getToken(): string | null {
     return localStorage.getItem('token');
   }
-
 
   // =========================
   // OBTENER USUARIO GUARDADO
@@ -87,10 +96,8 @@ export class Auth {
     return JSON.parse(user);
   }
 
-
   // =========================
   // CONSULTAR MI PERFIL
-  // GET /auth/me
   // =========================
   async getMe() {
 
@@ -107,7 +114,6 @@ export class Auth {
 
     const data = response.data;
 
-    // Actualizar también los datos locales
     if (data.success && data.user) {
       localStorage.setItem(
         'user',
@@ -118,10 +124,8 @@ export class Auth {
     return data;
   }
 
-
   // =========================
   // MODIFICAR MI PERFIL
-  // PUT /auth/me
   // =========================
   async updateProfile(
     name: string,
@@ -148,7 +152,6 @@ export class Auth {
 
     const data = response.data;
 
-    // Actualizar usuario guardado
     if (data.success && data.user) {
       localStorage.setItem(
         'user',
@@ -158,7 +161,6 @@ export class Auth {
 
     return data;
   }
-
 
   // =========================
   // CAMBIAR MI CONTRASEÑA
@@ -187,7 +189,6 @@ export class Auth {
     return response.data;
   }
 
-
   // =========================
   // CERRAR SESIÓN
   // =========================
@@ -211,13 +212,11 @@ export class Auth {
 
     } finally {
 
-      // Aunque ocurra un error, limpiar sesión local
       localStorage.removeItem('token');
       localStorage.removeItem('user');
 
     }
   }
-
 
   // =========================
   // SABER SI HAY SESIÓN LOCAL

@@ -38,6 +38,16 @@ const routes: Routes = [
       import('./pages/recipes/recipes.module').then(m => m.RecipesPageModule)
   },
   {
+    path: 'sales',
+    loadChildren: () =>
+      import('./pages/sales/sales.module').then(m => m.SalesPageModule)
+  },
+  {
+    path: 'payment-methods',
+    loadChildren: () =>
+      import('./pages/payment-methods/payment-methods.module').then(m => m.PaymentMethodsPageModule)
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

@@ -1,0 +1,8 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular/lazy';
+import { SalesPageRoutingModule } from './sales-routing.module';
+import { SalesPage } from './sales.page';
+@NgModule({imports:[CommonModule,FormsModule,IonicModule,SalesPageRoutingModule],declarations:[SalesPage]})
+export class SalesPageModule {}

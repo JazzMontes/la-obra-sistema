@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { ApiConfigService } from './api-config';
 
 export interface RecipeInput {
   input_id: number;
@@ -8,7 +9,11 @@ export interface RecipeInput {
 
 @Injectable({ providedIn: 'root' })
 export class Recipes {
-  private apiUrl = 'http://localhost/la-obra-sistema/backend';
+  constructor(private apiConfig: ApiConfigService) {}
+
+  private get apiUrl(): string {
+    return this.apiConfig.getApiUrl();
+  }
 
   private getHeaders() {
     const token = localStorage.getItem('token');

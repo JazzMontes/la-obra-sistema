@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { ApiConfigService } from './api-config';
 
 @Injectable({ providedIn: 'root' })
 export class Categories {
-  private apiUrl = 'http://localhost/la-obra-sistema/backend';
+  constructor(private apiConfig: ApiConfigService) {}
+
+  private get apiUrl(): string {
+    return this.apiConfig.getApiUrl();
+  }
 
   private getHeaders() {
     const token = localStorage.getItem('token');

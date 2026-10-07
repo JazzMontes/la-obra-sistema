@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { ApiConfigService } from './api-config';
 
 @Injectable({ providedIn: 'root' })
 export class Products {
-  private apiUrl = 'http://localhost/la-obra-sistema/backend';
+  constructor(private apiConfig: ApiConfigService) {}
+
+  private get apiUrl(): string {
+    return this.apiConfig.getApiUrl();
+  }
 
   private getHeaders() {
     const token = localStorage.getItem('token');
@@ -56,6 +61,15 @@ export class Products {
   async deactivate(id: number) {
     const response = await axios.patch(
       `${this.apiUrl}/products/deactivate.php`,
+      { id },
+      { headers: this.getHeaders() }
+    );
+    return response.data;
+  }
+
+  async activate(id: number) {
+    const response = await axios.patch(
+      `${this.apiUrl}/products/activate.php`,
       { id },
       { headers: this.getHeaders() }
     );

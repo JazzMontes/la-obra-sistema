@@ -35,3 +35,86 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/* ============================================================
+   LA OBRA - SISTEMA GLOBAL DE BOTONES
+   Unifica la apariencia de los botones en páginas y modales.
+   Principal: amarillo sólido / Secundario: contorno amarillo /
+   Peligro: contorno rojo / Clear: texto visible sin fondo.
+   ============================================================ */
+
+ion-button:not([fill="outline"]):not([fill="clear"]):not([color="danger"]),
+ion-modal ion-button:not([fill="outline"]):not([fill="clear"]):not([color="danger"]) {
+  --background: #ffc526;
+  --background-hover: #ffd24f;
+  --background-activated: #ffb800;
+  --color: #101214;
+  --border-radius: 13px;
+  --box-shadow: 0 10px 24px rgba(255, 197, 38, .12);
+  min-height: 46px;
+  font-weight: 900;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-button[fill="outline"]:not([color="danger"]),
+ion-modal ion-button[fill="outline"]:not([color="danger"]) {
+  --background: transparent;
+  --background-hover: rgba(255, 197, 38, .10);
+  --background-activated: rgba(255, 197, 38, .16);
+  --color: #ffc526;
+  --border-color: #ffc526;
+  --border-style: solid;
+  --border-width: 2px;
+  --border-radius: 13px;
+  --box-shadow: none;
+  min-height: 46px;
+  font-weight: 900;
+  text-transform: none;
+}
+
+ion-button[fill="clear"]:not([color="danger"]),
+ion-modal ion-button[fill="clear"]:not([color="danger"]) {
+  --background: transparent;
+  --background-hover: rgba(255, 197, 38, .10);
+  --background-activated: rgba(255, 197, 38, .16);
+  --color: #ffc526;
+  --box-shadow: none;
+  font-weight: 800;
+  text-transform: none;
+}
+
+ion-button[color="danger"],
+ion-modal ion-button[color="danger"] {
+  --background: transparent;
+  --background-hover: rgba(255, 75, 85, .10);
+  --background-activated: rgba(255, 75, 85, .16);
+  --color: #ff4b55;
+  --border-color: #ff4b55;
+  --border-style: solid;
+  --border-width: 2px;
+  --border-radius: 13px;
+  --box-shadow: none;
+  font-weight: 900;
+  text-transform: none;
+}
+
+ion-button[color="danger"][fill="clear"],
+ion-modal ion-button[color="danger"][fill="clear"] {
+  --border-width: 0;
+}
+
+/* Los botones deshabilitados siguen siendo visibles. */
+ion-button.button-disabled,
+ion-button[disabled],
+ion-modal ion-button.button-disabled,
+ion-modal ion-button[disabled] {
+  opacity: .52;
+}
+
+/* Botones principales de formularios/modales: mismo porte que Login. */
+ion-button[expand="block"]:not([fill="outline"]):not([fill="clear"]),
+ion-modal ion-button[expand="block"]:not([fill="outline"]):not([fill="clear"]) {
+  min-height: 52px;
+  --border-radius: 13px;
+}

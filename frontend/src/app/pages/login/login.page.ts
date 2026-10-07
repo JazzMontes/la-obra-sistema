@@ -26,10 +26,8 @@ export class LoginPage implements OnInit {
 
   async login() {
 
-    // Limpiamos cualquier mensaje anterior
     this.errorMessage = '';
 
-    // Validamos que haya escrito ambos campos
     if (!this.username.trim() || !this.password) {
       this.errorMessage = 'Usuario y contraseña son obligatorios';
       return;
@@ -45,24 +43,33 @@ export class LoginPage implements OnInit {
       );
 
       if (response.success) {
-  console.log('Login correcto:', response);
-  console.log('Usuario:', response.user);
 
-  if (response.user.must_change_password) {
-    await this.router.navigate(['/change-password']);
-  } else {
-    await this.router.navigate(['/home']);
-  }
-}
+        console.log('Login correcto:', response);
+        console.log('Usuario:', response.user);
+
+        if (response.user.must_change_password) {
+          await this.router.navigate(['/change-password']);
+        } else {
+          await this.router.navigate(['/home']);
+        }
+
+      }
 
     } catch (error: any) {
 
-      console.error('Error al iniciar sesión:', error);
+      console.error('===== ERROR LOGIN =====');
+      console.error('Error completo:', error);
+      console.error('Mensaje:', error?.message);
+      console.error('Código:', error?.code);
+      console.error('Respuesta:', error?.response);
+      console.error('Datos respuesta:', error?.response?.data);
+      console.error('=======================');
 
       if (error.response?.data?.message) {
         this.errorMessage = error.response.data.message;
       } else {
-        this.errorMessage = 'No se pudo conectar con el servidor';
+        this.errorMessage =
+          `Error: ${error?.message || 'No se pudo conectar'}`;
       }
 
     } finally {
@@ -71,5 +78,4 @@ export class LoginPage implements OnInit {
 
     }
   }
-
 }
