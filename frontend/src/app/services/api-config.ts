@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ApiConfigService {
 
-  private readonly SERVER_IP = '192.168.1.14';
+  private readonly SERVER_IP = '192.168.1.122';
   private readonly APACHE_PORT = '80';
 
   constructor() {}

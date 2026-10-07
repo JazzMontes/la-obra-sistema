@@ -119,3 +119,134 @@ CREATE TABLE recipes (
     CONSTRAINT uq_recipe_product_input
         UNIQUE (product_id, input_id)
 );
+
+
+-- ============================================================
+-- LA OBRA
+-- VENTAS, PEDIDOS Y MÉTODOS DE PAGO
+-- CORREGIDO PARA TU BASE DE DATOS ACTUAL
+-- ============================================================
+
+
+-- ============================================================
+-- 1. PEDIDOS
+-- ============================================================
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    -- IMPORTANTE:
+    -- users.id es INT UNSIGNED en tu base original
+    user_id INT UNSIGNED NOT NULL,
+
+    order_status ENUM(
+        'open',
+        'confirmed',
+        'cancelled'
+    ) NOT NULL DEFAULT 'open',
+
+    payment_status ENUM(
+        'pending',
+        'paid'
+    ) NOT NULL DEFAULT 'pending',
+
+    delivery_status ENUM(
+        'pending',
+        'delivered'
+    ) NOT NULL DEFAULT 'pending',
+
+    total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    confirmed_at DATETIME NULL,
+    delivered_at DATETIME NULL,
+    cancelled_at DATETIME NULL,
+
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+
+-- ============================================================
+-- 2. PRODUCTOS DEL PEDIDO
+-- ============================================================
+
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    order_id INT NOT NULL,
+
+    -- products.id es INT normal en tu base actual
+    product_id INT NOT NULL,
+
+    quantity INT NOT NULL,
+
+    -- Se conserva el precio que tenía cuando se pidió
+    unit_price DECIMAL(10,2) NOT NULL,
+
+    subtotal DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT fk_order_items_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_order_items_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_order_product
+        UNIQUE (order_id, product_id)
+);
+
+
+-- ============================================================
+-- 3. PAGOS
+-- ============================================================
+
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    order_id INT NOT NULL,
+    payment_method_id INT NOT NULL,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    -- Solo se utilizan cuando el pago sea en efectivo
+    cash_received DECIMAL(10,2) NULL,
+    change_amount DECIMAL(10,2) NULL,
+
+    paid_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_payments_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_payments_method
+        FOREIGN KEY (payment_method_id)
+        REFERENCES payment_methods(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    -- Un pedido = un pago por ahora
+    CONSTRAINT uq_payment_order
+        UNIQUE (order_id)
+);
+
+
+-- ============================================================
+-- 4. MÉTODOS INICIALES
+-- ============================================================
+
+INSERT IGNORE INTO payment_methods (name, status) VALUES
+('Efectivo', 'active'),
+('Transferencia', 'active'),
+('Tarjeta', 'active');
