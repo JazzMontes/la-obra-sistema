@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
+import { ApiConfigService } from '../../services/api-config';
+import { ApiDiagnosticsService } from '../../services/api-diagnostics';
 
 @Component({
   selector: 'app-login',
@@ -12,28 +14,75 @@ export class LoginPage implements OnInit {
 
   username: string = '';
   password: string = '';
+  showServerSettings = false;
+  serverIp = '';
+  serverMessage = '';
+  serverError = '';
 
+  debugText = 'Sin peticiones todavía';
+  showConnectionDetails = false;
+  connectionChecked = false;
   loading: boolean = false;
   errorMessage: string = '';
 
   constructor(
     private auth: Auth,
-    private router: Router
+    private diagnostics: ApiDiagnosticsService,
+    private apiConfig: ApiConfigService,
+    private router: Router,
+    private changeDetector: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
+    this.serverIp = this.apiConfig.getServerIp();
+  }
+
+  toggleServerSettings() {
+    this.showServerSettings = !this.showServerSettings;
+    this.serverIp = this.apiConfig.getServerIp();
+    this.serverMessage = '';
+    this.serverError = '';
+  }
+
+  saveServerIp() {
+    this.serverMessage = '';
+    this.serverError = '';
+    try {
+      this.apiConfig.setServerIp(this.serverIp);
+      this.serverMessage = 'IP guardada correctamente';
+      this.showServerSettings = false;
+    } catch (error: any) {
+      this.serverError = error.message || 'IP inválida';
+    }
   }
 
   async login() {
+    if (this.loading) return;
 
     this.errorMessage = '';
+    this.connectionChecked = false;
+    this.diagnostics.last = null;
+    this.debugText = 'Preparando solicitud a la API...';
 
     if (!this.username.trim() || !this.password) {
       this.errorMessage = 'Usuario y contraseña son obligatorios';
+      this.diagnostics.reportLocalError(this.errorMessage);
+      this.debugText = this.diagnostics.asText();
+      this.changeDetector.markForCheck();
       return;
     }
 
+    try {
+      this.apiConfig.getApiUrl();
+    } catch (error: any) {
+      this.errorMessage = error.message || 'Configura la IP del servidor';
+      this.diagnostics.reportLocalError(this.errorMessage);
+      this.debugText = this.diagnostics.asText();
+      this.changeDetector.markForCheck();
+      return;
+    }
     this.loading = true;
+    this.changeDetector.markForCheck();
 
     try {
 
@@ -42,10 +91,10 @@ export class LoginPage implements OnInit {
         this.password
       );
 
+      this.debugText = this.diagnostics.asText();
+      this.connectionChecked = true;
       if (response.success) {
 
-        console.log('Login correcto:', response);
-        console.log('Usuario:', response.user);
 
         if (response.user.must_change_password) {
           await this.router.navigate(['/change-password']);
@@ -57,14 +106,8 @@ export class LoginPage implements OnInit {
 
     } catch (error: any) {
 
-      console.error('===== ERROR LOGIN =====');
-      console.error('Error completo:', error);
-      console.error('Mensaje:', error?.message);
-      console.error('Código:', error?.code);
-      console.error('Respuesta:', error?.response);
-      console.error('Datos respuesta:', error?.response?.data);
-      console.error('=======================');
-
+      this.connectionChecked = true;
+      this.debugText = this.diagnostics.asText();
       if (error.response?.data?.message) {
         this.errorMessage = error.response.data.message;
       } else {
@@ -74,7 +117,10 @@ export class LoginPage implements OnInit {
 
     } finally {
 
+      this.debugText = this.diagnostics.asText();
       this.loading = false;
+      // Axios puede completar fuera del ciclo de actualización de Angular.
+      this.changeDetector.markForCheck();
 
     }
   }

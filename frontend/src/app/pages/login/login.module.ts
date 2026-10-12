@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonText, IonTitle, IonToolbar, IonRouterLink } from '@ionic/angular';
 
 import { LoginPageRoutingModule } from './login-routing.module';
 
@@ -12,7 +12,7 @@ import { LoginPage } from './login.page';
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
+    IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonText, IonTitle, IonToolbar, IonRouterLink,
     LoginPageRoutingModule
   ],
   declarations: [LoginPage]

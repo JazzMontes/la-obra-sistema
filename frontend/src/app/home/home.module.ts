@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar, IonRouterLink } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 
@@ -11,7 +11,7 @@ import { HomePageRoutingModule } from './home-routing.module';
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
+    IonButton, IonContent, IonHeader, IonTitle, IonToolbar, IonRouterLink,
     HomePageRoutingModule
   ],
   declarations: [HomePage]

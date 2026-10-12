@@ -18,12 +18,6 @@ export class Auth {
   // =========================
   async login(username: string, password: string) {
 
-    // TEMPORAL: para revisar la conexión desde Android
-    console.log('===== DATOS DE CONEXIÓN =====');
-    console.log('API URL:', `${this.apiUrl}/auth/login.php`);
-    console.log('ORIGIN:', window.location.origin);
-    console.log('=============================');
-
     const response = await axios.post(
       `${this.apiUrl}/auth/login.php`,
       {

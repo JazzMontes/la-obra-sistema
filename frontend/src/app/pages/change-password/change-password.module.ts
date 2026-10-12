@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular/lazy';
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { ChangePasswordPageRoutingModule } from './change-password-routing.module';
 
@@ -12,7 +12,7 @@ import { ChangePasswordPage } from './change-password.page';
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
+    IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonTitle, IonToolbar,
     ChangePasswordPageRoutingModule
   ],
   declarations: [ChangePasswordPage]
