@@ -250,3 +250,184 @@ INSERT IGNORE INTO payment_methods (name, status) VALUES
 ('Efectivo', 'active'),
 ('Transferencia', 'active'),
 ('Tarjeta', 'active');
+
+
+USE la_obra_db;
+
+-- ==========================================
+-- SERVICIO DE COMPRAS Y GASTOS
+-- SISTEMA LA OBRA
+-- ==========================================
+
+
+-- ==========================================
+-- 1. TABLA DE COMPRAS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS purchases (
+    id INT NOT NULL AUTO_INCREMENT,
+    purchase_date DATE NOT NULL,
+    supplier VARCHAR(150) DEFAULT NULL,
+    payment_method_id INT NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_purchases_date (purchase_date),
+    INDEX idx_purchases_payment_method (payment_method_id),
+    INDEX idx_purchases_user (user_id),
+
+    CONSTRAINT fk_purchases_payment_method
+        FOREIGN KEY (payment_method_id)
+        REFERENCES payment_methods(id),
+
+    CONSTRAINT fk_purchases_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+
+-- ==========================================
+-- 2. DETALLE DE COMPRAS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS purchase_items (
+    id INT NOT NULL AUTO_INCREMENT,
+    purchase_id INT NOT NULL,
+    input_id INT NOT NULL,
+    quantity DECIMAL(10,3) NOT NULL,
+    unit_cost DECIMAL(12,2) NOT NULL,
+    subtotal DECIMAL(12,2) NOT NULL,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_purchase_items_purchase (purchase_id),
+    INDEX idx_purchase_items_input (input_id),
+
+    CONSTRAINT fk_purchase_items_purchase
+        FOREIGN KEY (purchase_id)
+        REFERENCES purchases(id),
+
+    CONSTRAINT fk_purchase_items_input
+        FOREIGN KEY (input_id)
+        REFERENCES inputs(id)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+
+-- ==========================================
+-- 3. HISTORIAL DE COMPRAS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS purchase_history (
+    id INT NOT NULL AUTO_INCREMENT,
+    purchase_id INT NOT NULL,
+    changed_by INT UNSIGNED NOT NULL,
+    previous_data LONGTEXT NOT NULL,
+    new_data LONGTEXT NOT NULL,
+    change_reason VARCHAR(255) DEFAULT NULL,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_purchase_history_purchase (purchase_id),
+    INDEX idx_purchase_history_user (changed_by),
+
+    CONSTRAINT fk_purchase_history_purchase
+        FOREIGN KEY (purchase_id)
+        REFERENCES purchases(id),
+
+    CONSTRAINT fk_purchase_history_user
+        FOREIGN KEY (changed_by)
+        REFERENCES users(id)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+
+-- ==========================================
+-- 4. GASTOS Y SALIDAS DE CAJA
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS expenses (
+    id INT NOT NULL AUTO_INCREMENT,
+    amount DECIMAL(12,2) NOT NULL,
+    reason VARCHAR(255) NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+
+    status ENUM('active','cancelled')
+        NOT NULL DEFAULT 'active',
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+
+    cancelled_by INT UNSIGNED DEFAULT NULL,
+    cancelled_at DATETIME DEFAULT NULL,
+    cancellation_reason VARCHAR(255) DEFAULT NULL,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_expenses_user (user_id),
+    INDEX idx_expenses_date (created_at),
+    INDEX idx_expenses_status (status),
+    INDEX idx_expenses_cancelled_by (cancelled_by),
+
+    CONSTRAINT fk_expenses_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id),
+
+    CONSTRAINT fk_expenses_cancelled_by
+        FOREIGN KEY (cancelled_by)
+        REFERENCES users(id)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+
+
+-- ==========================================
+-- 5. HISTORIAL DE GASTOS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS expense_history (
+    id INT NOT NULL AUTO_INCREMENT,
+    expense_id INT NOT NULL,
+
+    action ENUM('updated','cancelled') NOT NULL,
+
+    previous_data LONGTEXT NOT NULL,
+    new_data LONGTEXT NOT NULL,
+
+    change_reason VARCHAR(255) NOT NULL,
+    changed_by INT UNSIGNED NOT NULL,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_expense_history_expense (expense_id),
+    INDEX idx_expense_history_user (changed_by),
+
+    CONSTRAINT fk_expense_history_expense
+        FOREIGN KEY (expense_id)
+        REFERENCES expenses(id),
+
+    CONSTRAINT fk_expense_history_user
+        FOREIGN KEY (changed_by)
+        REFERENCES users(id)
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;

@@ -7,6 +7,7 @@
 <ion-content class="ion-padding">
 
   <ion-button class="data-origins-link" fill="outline" size="small" routerLink="/data-origins">Orígenes de datos</ion-button>
+  <ion-button class="data-origins-link" fill="outline" size="small" routerLink="/profile">Mi perfil</ion-button>
   <h1>Bienvenido, {{ user?.name }}</h1>
 
   <p>Usuario: {{ user?.username }}</p>
@@ -44,11 +45,11 @@
     </ion-button>
 
     <!-- Estos módulos todavía no tienen páginas -->
-    <ion-button expand="block" disabled>
+    <ion-button expand="block" routerLink="/purchases">
       Compras
     </ion-button>
 
-    <ion-button expand="block" disabled>
+    <ion-button expand="block" routerLink="/expenses">
       Gastos
     </ion-button>
 
@@ -73,6 +74,10 @@
 
     <ion-button expand="block" routerLink="/sales">
       Nueva venta
+    </ion-button>
+
+    <ion-button expand="block" routerLink="/expenses">
+      Gastos y salidas
     </ion-button>
 
     <ion-button expand="block" disabled>
