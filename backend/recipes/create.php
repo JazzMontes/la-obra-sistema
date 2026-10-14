@@ -1,14 +1,18 @@
 <?php
+// Registra un nuevo recetas.
 header("Content-Type: application/json");
 require_once __DIR__ . "/../config/cors.php";
 require_once __DIR__ . "/../config/database.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
+
+// Enviar respuesta
     echo json_encode(["success" => false, "message" => "Método no permitido"]);
     exit;
 }
 
+// Validar autenticación
 $headers = getallheaders();
 $authorization = $headers["Authorization"] ?? "";
 if (!preg_match('/Bearer\s+(\S+)/', $authorization, $matches)) {
@@ -17,6 +21,8 @@ if (!preg_match('/Bearer\s+(\S+)/', $authorization, $matches)) {
     exit;
 }
 $tokenHash = hash("sha256", $matches[1]);
+
+// Consultar o preparar datos
 $stmt = $pdo->prepare("SELECT u.id, u.status, u.role, s.expires_at FROM sessions s INNER JOIN users u ON s.user_id=u.id WHERE s.token_hash=:token_hash LIMIT 1");
 $stmt->execute([":token_hash" => $tokenHash]);
 $currentUser = $stmt->fetch(PDO::FETCH_ASSOC);

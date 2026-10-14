@@ -1,4 +1,5 @@
 <?php
+// Consulta el historial de gastos y salidas.
 require_once __DIR__.'/../config/service_helpers.php';
 method('GET');
 $u=user(true);

@@ -1,4 +1,5 @@
 <?php
+// Valida credenciales e inicia sesión en autenticación.
 
 require_once __DIR__ . "/../config/cors.php";
 require_once __DIR__ . "/../config/database.php";
@@ -9,6 +10,7 @@ header("Content-Type: application/json");
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"

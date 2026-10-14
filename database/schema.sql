@@ -431,3 +431,104 @@ CREATE TABLE IF NOT EXISTS expense_history (
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ============================================
+-- LA OBRA
+-- SERVICIO DE MERMAS Y PERDIDAS
+-- ============================================
+
+USE la_obra_db;
+
+CREATE TABLE IF NOT EXISTS waste_records (
+
+    -- Identificador de la merma
+    id INT NOT NULL AUTO_INCREMENT,
+
+    -- Elemento afectado
+    affected_type ENUM(
+        'input',
+        'product',
+        'preparation'
+    ) NOT NULL,
+
+    input_id INT DEFAULT NULL,
+    product_id INT DEFAULT NULL,
+
+    -- Reservado para el futuro servicio
+    -- de preparaciones
+    preparation_id INT DEFAULT NULL,
+
+    -- Datos de la perdida
+    quantity DECIMAL(12,3) NOT NULL,
+
+    is_approximate BOOLEAN NOT NULL DEFAULT FALSE,
+
+    waste_date DATE NOT NULL,
+
+    reason VARCHAR(500) NOT NULL,
+
+    classification VARCHAR(100) NOT NULL,
+
+    -- Valor economico estimado
+    estimated_unit_cost DECIMAL(12,4) DEFAULT NULL,
+
+    estimated_total_cost DECIMAL(14,2) DEFAULT NULL,
+
+    cost_status ENUM(
+        'calculated',
+        'unavailable'
+    ) NOT NULL DEFAULT 'unavailable',
+
+    -- Usuario que registra la merma
+    user_id INT UNSIGNED NOT NULL,
+
+    created_at DATETIME NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    -- Clave primaria
+    PRIMARY KEY (id),
+
+    -- Indices
+    INDEX idx_waste_date (waste_date),
+
+    INDEX idx_waste_type_date (
+        affected_type,
+        waste_date
+    ),
+
+    INDEX idx_waste_classification_date (
+        classification,
+        waste_date
+    ),
+
+    INDEX idx_waste_input (input_id),
+
+    INDEX idx_waste_product (product_id),
+
+    INDEX idx_waste_preparation (preparation_id),
+
+    INDEX idx_waste_user (user_id),
+
+    -- Relaciones con tablas existentes
+    CONSTRAINT fk_waste_input
+        FOREIGN KEY (input_id)
+        REFERENCES inputs(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_waste_product
+        FOREIGN KEY (product_id)
+        REFERENCES products(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_waste_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;

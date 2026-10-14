@@ -1,4 +1,5 @@
 <?php
+// Consulta el detalle de usuarios.
 
 header("Content-Type: application/json");
 
@@ -9,6 +10,7 @@ require_once __DIR__ . "/../config/database.php";
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
@@ -19,6 +21,8 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 
 // Obtener Authorization
 $headers = getallheaders();
+
+// Validar autenticación
 $authorization = $headers["Authorization"] ?? "";
 
 // Verificar Bearer Token

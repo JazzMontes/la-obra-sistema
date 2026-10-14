@@ -1,4 +1,5 @@
 <?php
+// Gestiona el cambio de contraseña en autenticación.
 
 require_once __DIR__ . "/../config/cors.php";
 require_once __DIR__ . "/../config/database.php";
@@ -9,6 +10,7 @@ header("Content-Type: application/json");
 if ($_SERVER["REQUEST_METHOD"] !== "PATCH") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
@@ -20,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "PATCH") {
 // Obtener el encabezado Authorization
 $headers = getallheaders();
 
+// Validar autenticación
 $authorization = $headers["Authorization"] ?? "";
 
 // Comprobar que venga como Bearer <token>

@@ -1,4 +1,5 @@
 <?php
+// Consulta la sesión actual de autenticación.
 
 header("Content-Type: application/json");
 require_once __DIR__ . "/../config/cors.php";
@@ -11,6 +12,7 @@ $method = $_SERVER["REQUEST_METHOD"];
 if ($method !== "GET" && $method !== "PUT") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
@@ -22,6 +24,7 @@ if ($method !== "GET" && $method !== "PUT") {
 // Obtener el encabezado Authorization
 $headers = getallheaders();
 
+// Validar autenticación
 $authorization = $headers["Authorization"] ?? "";
 
 // Comprobar que venga como Bearer <token>

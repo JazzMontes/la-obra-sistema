@@ -1,10 +1,13 @@
 <?php
+// Proporciona validaciones y respuestas comunes de configuración.
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 function out($code, $message, $extra = [])
 {
     http_response_code($code);
+
+// Enviar respuesta
     echo json_encode(array_merge(['success' => $code < 400, 'message' => $message], $extra), JSON_UNESCAPED_UNICODE);
     exit;
 }

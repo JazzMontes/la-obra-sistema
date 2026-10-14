@@ -1,4 +1,5 @@
 <?php
+// Consulta el detalle de compras.
 require_once __DIR__.'/../config/service_helpers.php';
 method('GET');
 $u=user(true);

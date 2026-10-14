@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  { path: 'waste', loadChildren: () => import('./pages/waste/waste.module').then(m => m.WastePageModule) },
   { path: 'purchases', loadChildren: () => import('./pages/purchases/purchases.module').then(m => m.PurchasesPageModule) },
   { path: 'expenses', loadChildren: () => import('./pages/expenses/expenses.module').then(m => m.ExpensesPageModule) },
   { path: 'profile', loadChildren: () => import('./pages/profile/profile.module').then(m => m.ProfilePageModule) },

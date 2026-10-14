@@ -1,4 +1,5 @@
 <?php
+// Actualiza los datos de usuarios.
 
 header("Content-Type: application/json");
 
@@ -9,6 +10,7 @@ require_once __DIR__ . "/../config/database.php";
 if ($_SERVER["REQUEST_METHOD"] !== "PATCH") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
@@ -25,6 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] !== "PATCH") {
 
 // Obtener Authorization
 $headers = getallheaders();
+
+// Validar autenticación
 $authorization = $headers["Authorization"] ?? "";
 
 // Verificar Bearer Token
@@ -171,6 +175,7 @@ if (!$user) {
 |--------------------------------------------------------------------------
 */
 
+// Recibir datos de la solicitud
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!is_array($data)) {

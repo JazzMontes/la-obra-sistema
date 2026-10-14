@@ -1,4 +1,5 @@
 <?php
+// Configura los encabezados CORS de configuración.
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");

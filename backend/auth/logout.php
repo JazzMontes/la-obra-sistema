@@ -1,4 +1,5 @@
 <?php
+// Cierra la sesión en autenticación.
 
 header("Content-Type: application/json");
 
@@ -9,6 +10,7 @@ require_once __DIR__ . "/../config/database.php";
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
 
+// Enviar respuesta
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
@@ -20,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 // Obtener el encabezado Authorization
 $headers = getallheaders();
 
+// Validar autenticación
 $authorization = $headers["Authorization"] ?? "";
 
 // Comprobar que venga como Bearer <token>
