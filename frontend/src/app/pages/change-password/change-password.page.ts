@@ -1,3 +1,5 @@
+// Valida y envía el cambio de contraseña.
+
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
@@ -10,6 +12,7 @@ import { Auth } from '../../services/auth';
 })
 export class ChangePasswordPage implements OnInit {
 
+  // Datos y estado
   currentPassword: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
@@ -17,24 +20,21 @@ export class ChangePasswordPage implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
 
+  // Dependencias e inicio
   constructor(
     private auth: Auth,
     private router: Router
-  ) { }
+  ) {}
 
-  ngOnInit() {
-  }
+  // Inicialización
+  ngOnInit() {}
 
+  // Cambiar contraseña
   async changePassword() {
-
     this.errorMessage = '';
 
     // Validar campos vacíos
-    if (
-      !this.currentPassword ||
-      !this.newPassword ||
-      !this.confirmPassword
-    ) {
+    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
       this.errorMessage = 'Todos los campos son obligatorios';
       return;
     }
@@ -48,7 +48,6 @@ export class ChangePasswordPage implements OnInit {
     this.loading = true;
 
     try {
-
       const response = await this.auth.changePassword(
         this.currentPassword,
         this.newPassword
@@ -58,9 +57,7 @@ export class ChangePasswordPage implements OnInit {
         await this.auth.getMe();
         await this.router.navigate(['/home']);
       }
-
     } catch (error: any) {
-
       console.error('Error al cambiar contraseña:', error);
 
       if (error.response?.data?.message) {
@@ -68,12 +65,8 @@ export class ChangePasswordPage implements OnInit {
       } else {
         this.errorMessage = 'No se pudo cambiar la contraseña';
       }
-
     } finally {
-
       this.loading = false;
-
     }
   }
-
 }

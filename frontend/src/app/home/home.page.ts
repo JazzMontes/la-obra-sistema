@@ -1,3 +1,5 @@
+// Recupera el usuario y controla el acceso a la pantalla de inicio.
+
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../services/auth';
@@ -10,8 +12,10 @@ import { Auth } from '../services/auth';
 })
 export class HomePage {
 
+  // Datos y estado
   user: any;
 
+  // Dependencias e inicio
   constructor(
     private auth: Auth,
     private router: Router
@@ -24,5 +28,4 @@ export class HomePage {
       this.router.navigate(['/login']);
     }
   }
-
 }

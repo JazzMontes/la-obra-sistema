@@ -1,3 +1,5 @@
+// Controla el inicio de sesión y la configuración del servidor.
+
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
@@ -12,6 +14,7 @@ import { ApiDiagnosticsService } from '../../services/api-diagnostics';
 })
 export class LoginPage implements OnInit {
 
+  // Datos y estado
   username: string = '';
   password: string = '';
   showServerSettings = false;
@@ -25,18 +28,21 @@ export class LoginPage implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
 
+  // Dependencias e inicio
   constructor(
     private auth: Auth,
     private diagnostics: ApiDiagnosticsService,
     private apiConfig: ApiConfigService,
     private router: Router,
     private changeDetector: ChangeDetectorRef
-  ) { }
+  ) {}
 
+  // Inicialización
   ngOnInit() {
     this.serverIp = this.apiConfig.getServerIp();
   }
 
+  // Mostrar configuración del servidor
   toggleServerSettings() {
     this.showServerSettings = !this.showServerSettings;
     this.serverIp = this.apiConfig.getServerIp();
@@ -44,9 +50,11 @@ export class LoginPage implements OnInit {
     this.serverError = '';
   }
 
+  // Guardar IP del servidor
   saveServerIp() {
     this.serverMessage = '';
     this.serverError = '';
+
     try {
       this.apiConfig.setServerIp(this.serverIp);
       this.serverMessage = 'IP guardada correctamente';
@@ -56,6 +64,7 @@ export class LoginPage implements OnInit {
     }
   }
 
+  // Iniciar sesión
   async login() {
     if (this.loading) return;
 
@@ -81,47 +90,37 @@ export class LoginPage implements OnInit {
       this.changeDetector.markForCheck();
       return;
     }
+
     this.loading = true;
     this.changeDetector.markForCheck();
 
     try {
-
-      const response = await this.auth.login(
-        this.username,
-        this.password
-      );
+      const response = await this.auth.login(this.username, this.password);
 
       this.debugText = this.diagnostics.asText();
       this.connectionChecked = true;
+
       if (response.success) {
-
-
         if (response.user.must_change_password) {
           await this.router.navigate(['/change-password']);
         } else {
           await this.router.navigate(['/home']);
         }
-
       }
-
     } catch (error: any) {
-
       this.connectionChecked = true;
       this.debugText = this.diagnostics.asText();
+
       if (error.response?.data?.message) {
         this.errorMessage = error.response.data.message;
       } else {
-        this.errorMessage =
-          `Error: ${error?.message || 'No se pudo conectar'}`;
+        this.errorMessage = `Error: ${error?.message || 'No se pudo conectar'}`;
       }
-
     } finally {
-
       this.debugText = this.diagnostics.asText();
       this.loading = false;
       // Axios puede completar fuera del ciclo de actualización de Angular.
       this.changeDetector.markForCheck();
-
     }
   }
 }
