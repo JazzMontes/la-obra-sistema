@@ -1,22 +1,117 @@
+// Define las rutas principales de la aplicación.
+
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
+// Rutas de navegación
 const routes: Routes = [
   {
+    path: 'waste',
+    loadChildren: () =>
+      import('./pages/waste/waste.module').then((m) => m.WastePageModule),
+  },
+  {
+    path: 'purchases',
+    loadChildren: () =>
+      import('./pages/purchases/purchases.module').then(
+        (m) => m.PurchasesPageModule
+      ),
+  },
+  {
+    path: 'expenses',
+    loadChildren: () =>
+      import('./pages/expenses/expenses.module').then(
+        (m) => m.ExpensesPageModule
+      ),
+  },
+  {
+    path: 'profile',
+    loadChildren: () =>
+      import('./pages/profile/profile.module').then((m) => m.ProfilePageModule),
+  },
+  {
+    path: 'reports',
+    loadChildren: () =>
+      import('./pages/reports/reports.module').then((m) => m.ReportsPageModule),
+  },
+  {
+    path: 'data-origins',
+    loadChildren: () =>
+      import('./pages/data-origins/data-origins.module').then(
+        (m) => m.DataOriginsPageModule
+      ),
+  },
+  {
     path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
+    loadChildren: () =>
+      import('./home/home.module').then((m) => m.HomePageModule),
+  },
+  {
+    path: 'login',
+    loadChildren: () =>
+      import('./pages/login/login.module').then((m) => m.LoginPageModule),
+  },
+  {
+    path: 'change-password',
+    loadChildren: () =>
+      import('./pages/change-password/change-password.module').then(
+        (m) => m.ChangePasswordPageModule
+      ),
+  },
+  {
+    path: 'products',
+    loadChildren: () =>
+      import('./pages/products/products.module').then(
+        (m) => m.ProductsPageModule
+      ),
+  },
+  {
+    path: 'categories',
+    loadChildren: () =>
+      import('./pages/categories/categories.module').then(
+        (m) => m.CategoriesPageModule
+      ),
+  },
+  {
+    path: 'inputs',
+    loadChildren: () =>
+      import('./pages/inputs/inputs.module').then((m) => m.InputsPageModule),
+  },
+  {
+    path: 'recipes',
+    loadChildren: () =>
+      import('./pages/recipes/recipes.module').then((m) => m.RecipesPageModule),
+  },
+  {
+    path: 'sales',
+    loadChildren: () =>
+      import('./pages/sales/sales.module').then((m) => m.SalesPageModule),
+  },
+  {
+    path: 'payment-methods',
+    loadChildren: () =>
+      import('./pages/payment-methods/payment-methods.module').then(
+        (m) => m.PaymentMethodsPageModule
+      ),
   },
   {
     path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
   },
 ];
 
+// Dependencias del módulo
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: PreloadAllModules,
+    }),
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

@@ -1,27 +1,137 @@
-#container {
-  text-align: center;
+// Define la apariencia de la pantalla de inicio.
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+// Colores de la pantalla
+:host {
+  --yellow: #ffc526;
+  --bg: #0a0c0e;
+  --panel: #15181b;
+  --border: #292e33;
+  --text: #f7f7f5;
+  --muted: #9ca3aa;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+// Encabezado
+ion-header {
+  box-shadow: none;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
+// Barra superior
+ion-toolbar {
+  --background: #101214;
+  --color: var(--text);
+  --border-color: var(--border);
+  --min-height: 68px;
+}
 
-  color: #8c8c8c;
+// Título
+ion-title {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
 
+// Fondo y contenido
+ion-content {
+  --background:
+    radial-gradient(circle at 90% 0%, rgba(255, 197, 38, 0.1), transparent 27%),
+    var(--bg);
+  --color: var(--text);
+}
+
+h1 {
+  margin: 12px 0 5px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+
+ion-content > p {
+  display: inline-block;
+  color: var(--muted);
+  margin: 0 18px 28px 0;
+}
+
+h2 {
+  color: var(--text);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 6px 0 15px;
+}
+
+ion-content > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+// Botones
+ion-button {
+  --background: linear-gradient(145deg, #191c1f, #131517);
+  --background-hover: #202429;
+  --background-activated: #24282d;
+  --color: var(--text);
+  --border-radius: 16px;
+  --box-shadow: none;
   margin: 0;
+  min-height: 88px;
+  font-weight: 800;
+  text-transform: none;
+  border: 1px solid var(--border);
+  border-radius: 16px;
 }
 
-#container a {
-  text-decoration: none;
+ion-button::part(native) {
+  justify-content: flex-start;
+  padding: 0 20px;
+}
+
+ion-button:not([disabled]) {
+  border-color: #3b3523;
+}
+
+ion-button:not([disabled])::part(native)::before {
+  content: '›';
+  color: var(--yellow);
+  font-size: 1.7rem;
+  position: absolute;
+  right: 18px;
+}
+
+ion-button[disabled] {
+  opacity: 0.42;
+}
+
+// Ajustes para pantallas pequeñas
+@media (min-width: 760px) {
+  ion-content::part(scroll) {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 34px 70px;
+  }
+  ion-content > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  ion-button {
+    min-height: 120px;
+    font-size: 1.05rem;
+  }
+}
+
+ion-button.data-origins-link {
+  min-height: 40px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+}
+
+ion-button.data-origins-link::part(native) {
+  justify-content: center;
+}
+
+ion-button.data-origins-link::part(native)::before {
+  content: none;
+}
+
+ion-content > div > h2 {
+  grid-column: 1 / -1;
 }

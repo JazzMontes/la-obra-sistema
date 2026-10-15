@@ -1,0 +1,278 @@
+// Define la apariencia de la pantalla de perfil.
+
+// Colores de la pantalla
+:host {
+  --yellow: #ffc526;
+  --bg: #0a0c0e;
+  --panel: #15181b;
+  --border: #292e33;
+  --text: #f7f7f5;
+  --muted: #9ca3aa;
+}
+
+// Barra superior
+ion-toolbar {
+  --background: #101214;
+  --color: var(--text);
+}
+
+ion-back-button {
+  --color: var(--yellow);
+}
+
+// Fondo y contenido
+ion-content {
+  --background: var(--bg);
+  --color: var(--text);
+}
+
+.profile-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+  display: grid;
+  gap: 18px;
+}
+
+.profile-card,
+.metadata-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 26px;
+}
+
+.eyebrow {
+  color: var(--yellow);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  margin: 0 0 18px;
+}
+
+.avatar-area {
+  position: relative;
+  width: 174px;
+  height: 174px;
+  margin: 22px auto 16px;
+}
+
+.avatar {
+  width: 164px;
+  height: 164px;
+  border-radius: 50%;
+  border: 3px solid #353638;
+  background: #23272a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar > ion-icon {
+  font-size: 76px;
+  color: #92979a;
+}
+
+.camera-button {
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  width: 53px;
+  height: 53px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #111315;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 5px 18px #0007;
+}
+
+.camera-button ion-icon {
+  font-size: 27px;
+}
+
+.camera-button input {
+  display: none;
+}
+
+h1 {
+  color: var(--text);
+  text-align: center;
+  font-size: 25px;
+  margin: 8px 0 5px;
+  overflow-wrap: anywhere;
+}
+
+.subtitle {
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+  margin: 0 0 24px;
+}
+
+.info-list {
+  border-top: 1px solid var(--border);
+}
+
+.info-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 19px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-row > ion-icon {
+  color: var(--yellow);
+  font-size: 24px;
+  min-width: 28px;
+}
+
+.info-row div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.info-row span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.info-row strong {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title ion-icon {
+  color: var(--yellow);
+  font-size: 23px;
+}
+
+h2 {
+  color: var(--text);
+  font-size: 21px;
+  margin: 0;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.filename {
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow-wrap: anywhere;
+}
+
+.filename ion-icon {
+  color: var(--yellow);
+  flex-shrink: 0;
+}
+
+pre {
+  color: #e5e7eb;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #0b0d0f;
+  border: 1px solid var(--border);
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 12px;
+  max-height: 330px;
+  overflow: auto;
+}
+
+// Botones
+ion-button {
+  --background: var(--yellow);
+  --color: #111315;
+  --border-radius: 12px;
+  margin-top: 20px;
+  font-weight: 700;
+  min-height: 46px;
+}
+
+ion-button[disabled] {
+  opacity: 0.65;
+}
+
+.footnote {
+  margin-bottom: 0;
+}
+
+.error {
+  color: #ff8a80;
+}
+
+// Ajustes para pantallas pequeñas
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 14px 12px 40px;
+  }
+  .profile-card,
+  .metadata-card {
+    padding: 21px 18px;
+  }
+  .avatar-area {
+    margin-top: 12px;
+  }
+  h1 {
+    font-size: 23px;
+  }
+}
+
+/* Iconos más nítidos y legibles sobre el fondo oscuro */
+.info-row > ion-icon {
+  display: block;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: rgba(255, 197, 38, 0.13);
+  color: #ffd34f;
+  font-size: 25px;
+}
+
+.section-title > ion-icon {
+  font-size: 28px;
+  min-width: 28px;
+  color: #ffd34f;
+}
+
+.camera-button ion-icon {
+  font-size: 30px;
+  color: #0b0d0f;
+}
+
+.filename ion-icon {
+  font-size: 22px;
+  min-width: 22px;
+}
+
+ion-button ion-icon {
+  font-size: 22px;
+}

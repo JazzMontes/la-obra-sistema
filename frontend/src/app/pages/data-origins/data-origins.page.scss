@@ -1,0 +1,125 @@
+// Define la apariencia de la pantalla de orígenes de datos.
+
+// Colores de la pantalla
+:host {
+  --obra-bg: #0b0d0f;
+  --obra-surface: #14171a;
+  --obra-surface-2: #1b1f23;
+  --obra-border: #2a2f35;
+  --obra-yellow: #ffc526;
+  --obra-yellow-2: #ffb800;
+  --obra-text: #f7f7f5;
+  --obra-muted: #9ca3aa;
+}
+
+// Fondo y contenido
+ion-content {
+  --background:
+    radial-gradient(
+      circle at 85% -10%,
+      rgba(255, 197, 38, 0.1),
+      transparent 30%
+    ),
+    var(--obra-bg);
+  --color: var(--obra-text);
+}
+
+// Encabezado
+ion-header {
+  box-shadow: none;
+}
+
+// Barra superior
+ion-toolbar {
+  --background: rgba(14, 16, 18, 0.96);
+  --color: var(--obra-text);
+  --border-color: var(--obra-border);
+  --min-height: 66px;
+  padding-inline: max(10px, calc((100vw - 1180px) / 2));
+}
+
+// Título
+ion-title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+ion-back-button {
+  --color: var(--obra-yellow);
+}
+
+h2 {
+  color: var(--obra-text);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin: 12px 0 24px;
+}
+
+h3 {
+  color: var(--obra-text);
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 28px 0 14px;
+}
+
+// Lista de registros
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+// Campos y registros
+ion-item {
+  --background: var(--obra-surface);
+  --color: var(--obra-text);
+  --border-color: transparent;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  border: 1px solid var(--obra-border);
+  border-radius: 13px;
+  margin-bottom: 10px;
+  min-height: 56px;
+}
+
+ion-label {
+  color: var(--obra-text);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  background: var(--obra-surface);
+  color: var(--obra-text);
+  border: 1px solid var(--obra-border);
+  border-left: 3px solid var(--obra-yellow);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+}
+
+p {
+  color: var(--obra-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 16px 0 24px;
+}
+
+// Ajustes para pantallas pequeñas
+@media (min-width: 900px) {
+  ion-content::part(scroll) {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 34px 60px;
+  }
+  ion-list,
+  pre,
+  p {
+    max-width: 680px;
+  }
+}

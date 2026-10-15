@@ -1,0 +1,130 @@
+<!-- Muestra la pantalla de insumos. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Insumos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <p *ngIf="loading">Cargando registros…</p>
+  <p *ngIf="!loading && !message && inputs.length === 0">
+    Todavía no hay registros.
+  </p>
+  <p class="muted">{{ message }}</p>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item *ngFor="let i of inputs">
+      <ion-label>
+        <h2>{{ i.name }}</h2>
+        <p>{{ i.unit }} · {{ i.status }}</p>
+      </ion-label>
+      <ion-button
+        fill="clear"
+        (click)="edit(i)"
+      >
+        Editar
+      </ion-button>
+      <ion-button
+        color="danger"
+        fill="clear"
+        *ngIf="i.status === 'active'"
+        (click)="deactivate(i.id)"
+      >
+        Desactivar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <!-- Botón para agregar -->
+  <ion-fab
+    class="add-fab"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+  >
+    <ion-fab-button
+      (click)="openCreate()"
+      aria-label="Agregar insumo"
+    >
+      <span
+        class="add-symbol"
+        aria-hidden="true"
+      >
+        +
+      </span>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Ventana de formulario o detalle -->
+<ion-modal
+  [isOpen]="modalOpen"
+  (didDismiss)="cancel()"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>
+          {{ editingId ? "Editar insumo" : "Nuevo insumo" }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="cancel()"
+            [disabled]="saving"
+          >
+            Cerrar
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <!-- Contenido -->
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-content>
+          <ion-input
+            label="Nombre"
+            labelPlacement="stacked"
+            [(ngModel)]="form.name"
+          ></ion-input>
+          <ion-input
+            label="Unidad (kg, g, ml, pieza...)"
+            labelPlacement="stacked"
+            [(ngModel)]="form.unit"
+          ></ion-input>
+        </ion-card-content>
+      </ion-card>
+      <p role="alert">{{ message }}</p>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button
+          class="modal-save-button"
+          expand="block"
+          style="
+            --background: #ffc526;
+            --background-hover: #ffd24f;
+            --background-activated: #ffb800;
+            --color: #101214;
+            --border-radius: 13px;
+            --box-shadow: 0 12px 30px rgba(255, 197, 38, 0.13);
+            width: calc(100% - 32px);
+            margin: 10px 16px;
+            min-height: 52px;
+            font-weight: 900;
+            text-transform: none;
+          "
+          (click)="save()"
+          [disabled]="saving"
+        >
+          {{ saving ? "Guardando…" : editingId ? "Actualizar" : "Agregar" }}
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

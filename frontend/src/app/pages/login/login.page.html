@@ -1,0 +1,156 @@
+<!-- Muestra la pantalla de inicio de sesión. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>La Obra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <h1>Iniciar sesión</h1>
+
+  <!-- Usuario -->
+  <ion-item>
+    <ion-input
+      label="Usuario"
+      labelPlacement="stacked"
+      type="text"
+      [(ngModel)]="username"
+    ></ion-input>
+  </ion-item>
+
+  <!-- Contraseña -->
+  <ion-item>
+    <ion-input
+      label="Contraseña"
+      labelPlacement="stacked"
+      type="password"
+      [(ngModel)]="password"
+    ></ion-input>
+  </ion-item>
+
+  <!-- Estado de conexión -->
+  <section
+    class="connection-status"
+    aria-live="polite"
+  >
+    <div class="connection-summary">
+      <span
+        class="status-dot"
+        [class.checking]="loading"
+        [class.failed]="!!errorMessage"
+        [class.connected]="connectionChecked && !errorMessage && !loading"
+      ></span>
+      <span class="status-label">
+        {{
+          loading
+            ? "Comprobando conexión..."
+            : errorMessage
+              ? "Revisar conexión o credenciales"
+              : connectionChecked
+                ? "Acceso correcto"
+                : "Conexión sin comprobar"
+        }}
+      </span>
+      <button
+        type="button"
+        class="details-toggle"
+        (click)="showConnectionDetails = !showConnectionDetails"
+        [attr.aria-expanded]="showConnectionDetails"
+        aria-controls="connection-details"
+      >
+        {{
+          showConnectionDetails ? "Ocultar detalles" : "Ver detalles técnicos"
+        }}
+      </button>
+    </div>
+    <div
+      *ngIf="showConnectionDetails"
+      id="connection-details"
+      class="connection-details"
+    >
+      <div class="details-heading">Información técnica de la API</div>
+      <pre>{{ debugText }}</pre>
+    </div>
+  </section>
+
+  <!-- Configuración opcional del servidor: no requiere conexión a la API -->
+  <div class="server-settings-toggle">
+    <ion-button
+      fill="clear"
+      size="small"
+      (click)="toggleServerSettings()"
+      [attr.aria-expanded]="showServerSettings"
+      aria-label="Configurar servidor"
+    >
+      <ion-icon
+        slot="start"
+        name="settings-outline"
+      ></ion-icon>
+      Configurar servidor
+    </ion-button>
+  </div>
+
+  <section
+    *ngIf="showServerSettings"
+    class="server-settings"
+  >
+    <p>IP de la computadora donde está ejecutándose XAMPP</p>
+    <ion-item>
+      <ion-input
+        label="IP del servidor"
+        labelPlacement="stacked"
+        type="text"
+        inputmode="decimal"
+        placeholder="192.168.1.122"
+        [(ngModel)]="serverIp"
+      ></ion-input>
+    </ion-item>
+    <ion-text
+      color="danger"
+      *ngIf="serverError"
+    >
+      <p>{{ serverError }}</p>
+    </ion-text>
+    <ion-button
+      expand="block"
+      type="button"
+      (click)="saveServerIp()"
+    >
+      Guardar IP
+    </ion-button>
+    <ion-button
+      expand="block"
+      fill="outline"
+      routerLink="/data-origins"
+    >
+      Ver orígenes de datos
+    </ion-button>
+  </section>
+  <ion-text
+    color="success"
+    *ngIf="serverMessage"
+  >
+    <p>{{ serverMessage }}</p>
+  </ion-text>
+
+  <!-- Mensaje de error -->
+  <ion-text
+    color="danger"
+    *ngIf="errorMessage"
+  >
+    <p>{{ errorMessage }}</p>
+  </ion-text>
+
+  <!-- Botón -->
+  <ion-button
+    expand="block"
+    (click)="login()"
+    [disabled]="loading"
+  >
+    {{ loading ? "Iniciando..." : "Iniciar sesión" }}
+  </ion-button>
+</ion-content>

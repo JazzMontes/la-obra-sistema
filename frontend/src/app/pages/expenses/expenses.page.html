@@ -1,0 +1,351 @@
+<!-- Muestra la pantalla de gastos. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Gastos y salidas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-content>
+      <p class="muted">
+        {{
+          isAdmin
+            ? "Consulta de gastos registrados"
+            : "Gastos registrados durante la jornada actual"
+        }}
+      </p>
+      <ion-item>
+        <ion-select
+          label="Estado"
+          labelPlacement="stacked"
+          [(ngModel)]="status"
+        >
+          <ion-select-option value="">Todos</ion-select-option>
+          <ion-select-option value="active">Activos</ion-select-option>
+          <ion-select-option value="cancelled">Cancelados</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ng-container *ngIf="isAdmin">
+        <ion-input
+          type="date"
+          label="Desde"
+          labelPlacement="stacked"
+          [(ngModel)]="from"
+        ></ion-input>
+        <ion-input
+          type="date"
+          label="Hasta"
+          labelPlacement="stacked"
+          [(ngModel)]="to"
+        ></ion-input>
+        <ion-input
+          type="number"
+          label="ID del usuario (opcional)"
+          labelPlacement="stacked"
+          [(ngModel)]="userId"
+        ></ion-input>
+      </ng-container>
+      <ion-button (click)="load()">Consultar</ion-button>
+    </ion-card-content>
+  </ion-card>
+  <p
+    role="alert"
+    class="muted"
+  >
+    {{ message }}
+  </p>
+  <p *ngIf="loading">Cargando registros…</p>
+  <p *ngIf="!loading && !records.length">Todavía no hay gastos registrados.</p>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item *ngFor="let e of records">
+      <ion-label>
+        <h2>{{ e.amount | currency: "MXN" }} · {{ e.reason }}</h2>
+        <p>
+          {{ e.created_at }} · {{ e.user_name || "Usuario #" + e.user_id }} ·
+          {{ e.status === "active" ? "Activo" : "Cancelado" }}
+        </p>
+      </ion-label>
+      <ion-button
+        fill="clear"
+        (click)="show(e)"
+      >
+        Ver
+      </ion-button>
+      <ion-button
+        fill="clear"
+        *ngIf="e.status === 'active'"
+        (click)="edit(e)"
+      >
+        Editar
+      </ion-button>
+      <ion-button
+        color="danger"
+        fill="clear"
+        *ngIf="e.status === 'active'"
+        (click)="openCancel(e)"
+      >
+        Cancelar
+      </ion-button>
+      <ion-button
+        fill="clear"
+        *ngIf="isAdmin"
+        (click)="viewHistory(e)"
+      >
+        Historial
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <!-- Botón para agregar -->
+  <ion-fab
+    class="add-fab"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+  >
+    <ion-fab-button (click)="openCreate()">
+      <span class="add-symbol">+</span>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Ventana de formulario o detalle -->
+<ion-modal
+  [isOpen]="modalOpen"
+  (didDismiss)="modalOpen = false"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>
+          {{ editingId ? "Corregir gasto" : "Nuevo gasto" }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalOpen = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-content>
+          <ion-input
+            type="number"
+            label="Monto realmente gastado"
+            labelPlacement="stacked"
+            [(ngModel)]="form.amount"
+          ></ion-input>
+          <ion-textarea
+            label="Motivo del gasto"
+            labelPlacement="stacked"
+            [(ngModel)]="form.reason"
+          ></ion-textarea>
+          <ion-textarea
+            *ngIf="editingId"
+            label="Razón de la corrección"
+            labelPlacement="stacked"
+            [(ngModel)]="form.change_reason"
+          ></ion-textarea>
+        </ion-card-content>
+      </ion-card>
+      <p role="alert">{{ message }}</p>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button
+          expand="block"
+          (click)="save()"
+          [disabled]="saving"
+        >
+          {{ saving ? "Guardando…" : "Guardar gasto" }}
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
+<ion-modal
+  [isOpen]="detailOpen"
+  (didDismiss)="detailOpen = false"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Detalle del gasto</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="detailOpen = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card *ngIf="detail">
+        <ion-card-content>
+          <h2>Gasto #{{ detail.id }}</h2>
+          <p>Monto: {{ detail.amount | currency: "MXN" }}</p>
+          <p>Motivo: {{ detail.reason }}</p>
+          <p>Fecha: {{ detail.created_at }}</p>
+          <p>Estado: {{ detail.status }}</p>
+          <p *ngIf="detail.cancelled_at">
+            Cancelado: {{ detail.cancelled_at }} ·
+            {{ detail.cancellation_reason }}
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+<ion-modal
+  [isOpen]="historyOpen"
+  (didDismiss)="historyOpen = false"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Historial del gasto</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="historyOpen = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <!-- Contenido -->
+    <ion-content class="ion-padding">
+      <p class="muted">Consulta qué cambió, quién lo hizo y por qué.</p>
+      <p
+        *ngIf="!history.length"
+        class="muted"
+      >
+        Este gasto todavía no tiene cambios registrados.
+      </p>
+      <ion-card
+        *ngFor="let h of history"
+        class="history-card"
+      >
+        <ion-card-content>
+          <h2>
+            {{
+              h.action === "cancelled" ? "Gasto cancelado" : "Gasto corregido"
+            }}
+          </h2>
+          <p class="muted">
+            {{ h.changed_at }} ·
+            {{ h.changed_by_name || "Usuario #" + h.changed_by }}
+          </p>
+          <p>
+            <strong>Motivo del cambio:</strong>
+            {{ h.change_reason }}
+          </p>
+          <div class="history-comparison">
+            <div>
+              <p class="muted">Antes</p>
+              <p>
+                <strong>Monto:</strong>
+                {{ historyAmount(h, true) }}
+              </p>
+              <p>
+                <strong>Descripción:</strong>
+                {{ historyValue(h, "reason", true) || "—" }}
+              </p>
+              <p>
+                <strong>Estado:</strong>
+                {{ historyStatus(h, true) }}
+              </p>
+            </div>
+            <div>
+              <p class="muted">Después</p>
+              <p>
+                <strong>Monto:</strong>
+                {{ historyAmount(h) }}
+              </p>
+              <p>
+                <strong>Descripción:</strong>
+                {{ historyValue(h, "reason") || "—" }}
+              </p>
+              <p>
+                <strong>Estado:</strong>
+                {{ historyStatus(h) }}
+              </p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+<ion-modal
+  [isOpen]="cancelOpen"
+  (didDismiss)="closeCancel()"
+  cssClass="expense-cancel-modal"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Cancelar gasto</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeCancel()"
+            [disabled]="cancelling"
+          >
+            Cerrar
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-content>
+          <h2>¿Deseas cancelar este gasto?</h2>
+          <p class="muted">
+            Gasto #{{ cancelTarget?.id }} ·
+            {{ cancelTarget?.amount | currency: "MXN" }}
+          </p>
+          <p>{{ cancelTarget?.reason }}</p>
+          <p class="muted">
+            El registro no se eliminará; aparecerá como cancelado y quedará
+            guardado en el historial.
+          </p>
+          <ion-textarea
+            label="Motivo de cancelación"
+            labelPlacement="stacked"
+            [autoGrow]="true"
+            [maxlength]="255"
+            placeholder="Explica por qué se cancela este gasto"
+            [(ngModel)]="cancelReason"
+          ></ion-textarea>
+          <p
+            *ngIf="cancelError"
+            class="cancel-error"
+            role="alert"
+          >
+            {{ cancelError }}
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <div class="cancel-actions">
+          <ion-button
+            fill="outline"
+            (click)="closeCancel()"
+            [disabled]="cancelling"
+          >
+            Volver
+          </ion-button>
+          <ion-button
+            color="danger"
+            (click)="confirmCancel()"
+            [disabled]="cancelling || !cancelReason.trim()"
+          >
+            {{ cancelling ? "Cancelando…" : "Confirmar cancelación" }}
+          </ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

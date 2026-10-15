@@ -1,0 +1,217 @@
+// Define la apariencia de la pantalla de inicio de sesión.
+
+// Colores de la pantalla
+:host {
+  --yellow: #ffc526;
+  --bg: #090b0d;
+  --panel: #14171a;
+  --border: #292e33;
+  --text: #f8f8f6;
+  --muted: #9ca3aa;
+}
+
+// Encabezado
+ion-header {
+  display: none;
+}
+
+// Fondo y contenido
+ion-content {
+  --background:
+    radial-gradient(
+      circle at 50% 10%,
+      rgba(255, 197, 38, 0.13),
+      transparent 26%
+    ),
+    linear-gradient(135deg, #080a0c, #101316 55%, #090b0d);
+  --color: var(--text);
+}
+
+ion-content::part(scroll) {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(100% - 32px, 460px);
+  margin: 0 auto;
+  padding: 56px 0;
+}
+
+h1 {
+  margin: 0 0 30px;
+  text-align: center;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+
+h1::before {
+  content: 'LA OBRA';
+  display: block;
+  color: var(--yellow);
+  font-size: 0.42em;
+  letter-spacing: 0.22em;
+  margin-bottom: 10px;
+}
+
+// Campos y registros
+ion-item {
+  --background: #15191d;
+  --color: var(--text);
+  --border-color: transparent;
+  --highlight-color-focused: var(--yellow);
+  --padding-start: 18px;
+  --inner-padding-end: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  min-height: 68px;
+}
+
+ion-input {
+  --color: var(--text);
+  --placeholder-color: #727980;
+}
+
+ion-text p {
+  background: rgba(255, 75, 75, 0.08);
+  border: 1px solid rgba(255, 75, 75, 0.2);
+  color: #ff8585;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+// Botones
+ion-button {
+  --background: var(--yellow);
+  --background-hover: #ffd24f;
+  --color: #101214;
+  --border-radius: 13px;
+  --box-shadow: 0 12px 30px rgba(255, 197, 38, 0.13);
+  margin-top: 10px;
+  min-height: 52px;
+  font-weight: 900;
+  text-transform: none;
+}
+
+.server-settings-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 8px;
+}
+
+.server-settings-toggle ion-button {
+  --background: transparent;
+  --background-hover: rgba(255, 197, 38, 0.08);
+  --color: var(--muted);
+  --box-shadow: none;
+  min-height: 36px;
+  margin: 0;
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.server-settings-toggle ion-icon {
+  color: var(--yellow);
+}
+
+.server-settings {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.server-settings > p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+}
+
+.server-settings ion-button {
+  margin-top: 8px;
+}
+
+/* Estado compacto y diagnóstico opcional */
+.connection-status {
+  margin: 14px 0 12px;
+}
+
+.connection-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 32px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #858c95;
+}
+
+.status-dot.checking {
+  background: var(--yellow);
+}
+
+.status-dot.connected {
+  background: #42bd83;
+}
+
+.status-dot.failed {
+  background: #ff7777;
+}
+
+.status-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  flex: 1;
+}
+
+.details-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--yellow);
+  cursor: pointer;
+  font-size: 0.77rem;
+  padding: 7px 0 7px 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.details-toggle:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.connection-details {
+  margin-top: 9px;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.details-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.connection-details pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 200px;
+  overflow: auto;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}

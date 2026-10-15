@@ -1,0 +1,172 @@
+<!-- Muestra la pantalla de recetas. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Recetas y costos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <p *ngIf="loading">Cargando productos y recetas…</p>
+  <p
+    class="muted"
+    role="alert"
+  >
+    {{ message }}
+  </p>
+  <p *ngIf="!loading && !message && !products.length">
+    Todavía no hay productos preparados.
+  </p>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item *ngFor="let entry of entries">
+      <ion-label class="ion-text-wrap">
+        <h2>{{ entry.product.name }}</h2>
+        <p>
+          Precio de venta:
+          {{ entry.product.price | currency: "MXN" : "symbol-narrow" }}
+        </p>
+        <p *ngFor="let row of entry.inputs">
+          {{ row.name }}: {{ row.quantity }} {{ row.unit }}
+        </p>
+        <p *ngIf="entry.error">{{ entry.error }}</p>
+      </ion-label>
+      <ion-button
+        fill="clear"
+        (click)="edit(entry)"
+      >
+        {{ entry.exists ? "Editar" : "Agregar receta" }}
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <p class="muted">
+    El cálculo de costos estará disponible cuando se registren los costos de
+    compra de los insumos.
+  </p>
+  <!-- Botón para agregar -->
+  <ion-fab
+    class="add-fab"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+  >
+    <ion-fab-button
+      (click)="openCreate()"
+      aria-label="Agregar receta"
+    >
+      <span
+        class="add-symbol"
+        aria-hidden="true"
+      >
+        +
+      </span>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Ventana de formulario o detalle -->
+<ion-modal
+  [isOpen]="modalOpen"
+  (didDismiss)="cancel()"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ editing ? "Editar receta" : "Nueva receta" }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="cancel()"
+            [disabled]="saving"
+          >
+            Cerrar
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-select
+        label="Producto preparado"
+        labelPlacement="stacked"
+        [(ngModel)]="productId"
+        (ionChange)="loadRecipe()"
+        [disabled]="saving || recipeLoading"
+      >
+        <ion-select-option
+          *ngFor="let p of products"
+          [value]="p.id"
+        >
+          {{ p.name }}
+        </ion-select-option>
+      </ion-select>
+      <p *ngIf="recipeLoading">Cargando receta…</p>
+      <ion-card *ngFor="let row of recipeInputs; let n = index">
+        <ion-card-content>
+          <ion-select
+            label="Insumo"
+            labelPlacement="stacked"
+            [(ngModel)]="row.input_id"
+          >
+            <ion-select-option
+              *ngFor="let i of inputs"
+              [value]="i.id"
+            >
+              {{ i.name }} ({{ i.unit }})
+            </ion-select-option>
+          </ion-select>
+          <ion-input
+            type="number"
+            label="Cantidad"
+            labelPlacement="stacked"
+            [(ngModel)]="row.quantity"
+          ></ion-input>
+          <ion-button
+            color="danger"
+            fill="clear"
+            (click)="remove(n)"
+          >
+            Quitar
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+      <ion-button
+        fill="outline"
+        (click)="add()"
+        [disabled]="!productId || saving || recipeLoading"
+      >
+        Agregar insumo
+      </ion-button>
+      <p role="alert">{{ message }}</p>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button
+          class="modal-save-button"
+          expand="block"
+          style="
+            --background: #ffc526;
+            --background-hover: #ffd24f;
+            --background-activated: #ffb800;
+            --color: #101214;
+            --border-radius: 13px;
+            --box-shadow: 0 12px 30px rgba(255, 197, 38, 0.13);
+            width: calc(100% - 32px);
+            margin: 10px 16px;
+            min-height: 52px;
+            font-weight: 900;
+            text-transform: none;
+          "
+          (click)="save()"
+          [disabled]="saving || recipeLoading"
+        >
+          {{ saving ? "Guardando…" : editing ? "Actualizar" : "Agregar" }}
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

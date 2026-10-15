@@ -1,0 +1,43 @@
+<!-- Muestra la pantalla de orígenes de datos. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Orígenes de datos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <h2>Configuración del servidor</h2>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item>
+      <ion-label>IP: {{ origin.ip || "Sin configurar" }}</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Protocolo: {{ origin.protocol }}</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Puerto Apache: {{ origin.apachePort }}</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>Puerto MySQL (interno PHP): {{ origin.mysqlPort }}</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        Ruta base: {{ origin.basePath }}
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <h3>JSON guardado en el dispositivo</h3>
+  <pre>{{ json }}</pre>
+  <p>
+    El puerto MySQL es informativo: Android se conecta a Apache, no directamente
+    a MySQL.
+  </p>
+</ion-content>

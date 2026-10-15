@@ -1,3 +1,36 @@
+<!-- Contiene la navegación principal y el aviso de errores de la API. -->
+
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  <!-- Ventana de formulario o detalle -->
+  <ion-modal
+    [isOpen]="diagnostics.modalOpen"
+    (didDismiss)="diagnostics.closeModal()"
+    class="api-error-modal"
+  >
+    <ng-template>
+      <!-- Encabezado -->
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Error en la solicitud</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="diagnostics.closeModal()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <!-- Contenido -->
+      <ion-content class="ion-padding api-error-content">
+        <h2>No se pudo completar la operación</h2>
+        <p>{{ diagnostics.modalMessage }}</p>
+        <h3>Información técnica de la API</h3>
+        <pre>{{ diagnostics.modalDetails }}</pre>
+        <ion-button
+          expand="block"
+          (click)="diagnostics.closeModal()"
+        >
+          Cerrar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-app>

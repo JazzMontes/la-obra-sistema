@@ -1,0 +1,190 @@
+// Define la apariencia de la pantalla de métodos de pago.
+
+// Colores de la pantalla
+:host {
+  --obra-bg: #0b0d0f;
+  --obra-surface: #14171a;
+  --obra-surface-2: #1b1f23;
+  --obra-border: #2a2f35;
+  --obra-yellow: #ffc526;
+  --obra-yellow-2: #ffb800;
+  --obra-text: #f7f7f5;
+  --obra-muted: #9ca3aa;
+}
+
+// Fondo y contenido
+ion-content {
+  --background:
+    radial-gradient(
+      circle at 85% -10%,
+      rgba(255, 197, 38, 0.1),
+      transparent 30%
+    ),
+    var(--obra-bg);
+  --color: var(--obra-text);
+}
+
+// Encabezado
+ion-header {
+  box-shadow: none;
+}
+
+// Barra superior
+ion-toolbar {
+  --background: rgba(14, 16, 18, 0.96);
+  --color: var(--obra-text);
+  --border-color: var(--obra-border);
+  --min-height: 66px;
+  padding-inline: max(10px, calc((100vw - 1180px) / 2));
+}
+
+// Título
+ion-title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+ion-back-button {
+  --color: var(--obra-yellow);
+}
+
+ion-card {
+  --background: linear-gradient(145deg, #171a1d, #121416);
+  color: var(--obra-text);
+  border: 1px solid var(--obra-border);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  margin: 0 0 18px;
+}
+
+ion-card-title {
+  color: var(--obra-text);
+  font-weight: 800;
+}
+
+ion-card-content {
+  color: var(--obra-text);
+}
+
+// Campos y registros
+ion-item {
+  --background: var(--obra-surface);
+  --color: var(--obra-text);
+  --border-color: var(--obra-border);
+  --highlight-color-focused: var(--obra-yellow);
+  --padding-start: 16px;
+  --inner-padding-end: 14px;
+  border: 1px solid var(--obra-border);
+  border-radius: 13px;
+  margin-bottom: 10px;
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  --color: var(--obra-text);
+  --placeholder-color: #737a82;
+  --highlight-color-focused: var(--obra-yellow);
+  color: var(--obra-text);
+}
+
+// Botones
+ion-button {
+  --background: var(--obra-yellow);
+  --background-hover: #ffd04b;
+  --background-activated: var(--obra-yellow-2);
+  --color: #111315;
+  --border-radius: 11px;
+  --box-shadow: none;
+  min-height: 44px;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-button[fill='outline'] {
+  --background: transparent;
+  --color: var(--obra-yellow);
+  --border-color: #66531f;
+}
+
+ion-button[fill='clear'] {
+  --background: transparent;
+  --color: var(--obra-yellow);
+}
+
+ion-button[color='danger'] {
+  --color: #ff6b63;
+}
+
+// Lista de registros
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+ion-list ion-item {
+  --background: var(--obra-surface);
+  margin-bottom: 8px;
+}
+
+ion-label h2 {
+  color: var(--obra-text) !important;
+  font-weight: 700 !important;
+}
+
+ion-label p,
+.muted {
+  color: var(--obra-muted) !important;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+// Ajustes para pantallas pequeñas
+@media (min-width: 900px) {
+  ion-content::part(scroll) {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 34px 60px;
+  }
+}
+
+@media (min-width: 900px) {
+  ion-card {
+    max-width: 760px;
+  }
+  ion-list ion-item {
+    --min-height: 82px;
+  }
+}
+
+/* Boton flotante para agregar registros. */
+ion-fab.add-fab {
+  margin-right: 12px;
+  margin-bottom: 12px;
+}
+
+ion-fab.add-fab ion-fab-button {
+  --background: #ffc526;
+  --background-hover: #ffd04b;
+  --background-activated: #ffb800;
+  --color: #111315;
+  --border-radius: 50%;
+  --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  width: 56px;
+  height: 56px;
+}
+
+.add-symbol {
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+ion-content.ion-padding {
+  --padding-bottom: 96px;
+}

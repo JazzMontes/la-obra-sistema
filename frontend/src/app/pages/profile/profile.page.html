@@ -1,0 +1,135 @@
+<!-- Muestra la pantalla de perfil. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mi perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content>
+  <main class="profile-container">
+    <section class="profile-card">
+      <p class="eyebrow">LA OBRA · MI CUENTA</p>
+      <div class="avatar-area">
+        <div
+          class="avatar"
+          [class.has-photo]="imageUrl"
+        >
+          <img
+            *ngIf="imageUrl"
+            [src]="imageUrl"
+            alt="Foto seleccionada del perfil"
+          />
+          <ion-icon
+            *ngIf="!imageUrl"
+            name="person-outline"
+          ></ion-icon>
+        </div>
+        <label
+          class="camera-button"
+          aria-label="Elegir fotografía"
+        >
+          <ion-icon name="camera-outline"></ion-icon>
+          <input
+            type="file"
+            accept="image/*"
+            (change)="selectImage($event)"
+          />
+        </label>
+      </div>
+      <h1>{{ user?.name || "Mi perfil" }}</h1>
+      <p class="subtitle">Información de tu cuenta</p>
+
+      <div class="info-list">
+        <div class="info-row">
+          <ion-icon name="person-outline"></ion-icon>
+          <div>
+            <span>Nombre</span>
+            <strong>{{ user?.name || "—" }}</strong>
+          </div>
+        </div>
+        <div class="info-row">
+          <ion-icon name="at-outline"></ion-icon>
+          <div>
+            <span>Nombre de usuario</span>
+            <strong>{{ user?.username || "—" }}</strong>
+          </div>
+        </div>
+        <div class="info-row">
+          <ion-icon name="mail-outline"></ion-icon>
+          <div>
+            <span>Correo electrónico</span>
+            <strong>{{ user?.email || "—" }}</strong>
+          </div>
+        </div>
+        <div class="info-row">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <div>
+            <span>Rol</span>
+            <strong>{{ user?.role || "—" }}</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="metadata-card">
+      <p class="eyebrow">PRÁCTICA DE METADATOS</p>
+      <div class="section-title">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <h2>Datos de la fotografía</h2>
+      </div>
+      <p
+        class="hint"
+        *ngIf="!imageName"
+      >
+        Toca la cámara de tu perfil para seleccionar una imagen. No necesitas
+        subirla a internet.
+      </p>
+      <p
+        *ngIf="loading"
+        class="hint"
+      >
+        Leyendo imagen...
+      </p>
+      <p
+        *ngIf="error"
+        class="error"
+      >
+        {{ error }}
+      </p>
+      <p
+        *ngIf="imageName"
+        class="filename"
+      >
+        <ion-icon name="image-outline"></ion-icon>
+        {{ imageName }}
+      </p>
+      <div
+        *ngIf="metadata"
+        class="metadata-details"
+      >
+        <p class="hint">Metadatos extraídos del archivo seleccionado:</p>
+        <pre>{{ metadataText }}</pre>
+      </div>
+      <ion-button
+        expand="block"
+        [disabled]="true"
+      >
+        <ion-icon
+          name="bluetooth-outline"
+          slot="start"
+        ></ion-icon>
+        Enviar metadatos por Bluetooth
+      </ion-button>
+      <p class="hint footnote">
+        El envío y la recepción Bluetooth se configurarán en la siguiente etapa.
+      </p>
+    </section>
+  </main>
+</ion-content>

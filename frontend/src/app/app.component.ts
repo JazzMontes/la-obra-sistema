@@ -1,4 +1,7 @@
+// Conecta la aplicación con los diagnósticos de la API.
+
 import { Component } from '@angular/core';
+import { ApiDiagnosticsService } from './services/api-diagnostics';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +10,7 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class AppComponent {
-  constructor() {}
+
+  // Dependencias e inicio
+  constructor(public diagnostics: ApiDiagnosticsService) {}
 }

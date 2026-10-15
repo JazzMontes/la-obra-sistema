@@ -1,20 +1,156 @@
-<ion-header [translucent]="true">
+<!-- Muestra la pantalla de inicio. -->
+
+<!-- Encabezado -->
+
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>La Obra</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <ion-button
+    class="data-origins-link"
+    fill="outline"
+    size="small"
+    routerLink="/data-origins"
+  >
+    Orígenes de datos
+  </ion-button>
+  <ion-button
+    class="data-origins-link"
+    fill="outline"
+    size="small"
+    routerLink="/profile"
+  >
+    Mi perfil
+  </ion-button>
+  <h1>Bienvenido, {{ user?.name }}</h1>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <p>Usuario: {{ user?.username }}</p>
+  <p>Rol: {{ user?.role }}</p>
+
+  <!-- OPCIONES DEL ADMINISTRADOR -->
+  <div *ngIf="user?.role === 'admin'">
+    <h2>Administración</h2>
+    <ion-button
+      expand="block"
+      routerLink="/reports"
+    >
+      Reportes y gráficas
+    </ion-button>
+
+    <!-- Aún no existe una página de gestión de usuarios en este frontend -->
+    <ion-button
+      expand="block"
+      disabled
+    >
+      Gestión de usuarios
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/products"
+    >
+      Productos
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/categories"
+    >
+      Categorías
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/inputs"
+    >
+      Insumos
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/sales"
+    >
+      Ventas y pedidos
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/payment-methods"
+    >
+      Métodos de pago
+    </ion-button>
+
+    <!-- Estos módulos todavía no tienen páginas -->
+    <ion-button
+      expand="block"
+      routerLink="/purchases"
+    >
+      Compras
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/expenses"
+    >
+      Gastos
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/recipes"
+    >
+      Recetas y costos
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/waste"
+    >
+      Mermas y pérdidas
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      disabled
+    >
+      Cortes
+    </ion-button>
+  </div>
+
+  <!-- OPCIONES DISPONIBLES PARA EMPLEADO -->
+  <div *ngIf="user?.role === 'employee'">
+    <h2>Punto de venta</h2>
+
+    <ion-button
+      expand="block"
+      routerLink="/sales"
+    >
+      Nueva venta
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/expenses"
+    >
+      Gastos y salidas
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      routerLink="/waste"
+    >
+      Mermas y pérdidas
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      disabled
+    >
+      Cierre del día
+    </ion-button>
   </div>
 </ion-content>

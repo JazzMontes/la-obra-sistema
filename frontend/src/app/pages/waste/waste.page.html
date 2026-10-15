@@ -1,0 +1,504 @@
+<!-- Muestra la pantalla de mermas y pérdidas. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mermas y pérdidas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-content>
+      <p class="muted">
+        {{
+          isAdmin
+            ? "Registro, seguimiento y análisis de pérdidas"
+            : "Tus pérdidas registradas durante
+                la jornada actual"
+        }}
+      </p>
+      <ion-item>
+        <ion-select
+          label="Tipo de elemento"
+          labelPlacement="stacked"
+          [(ngModel)]="filterType"
+        >
+          <ion-select-option value="">Todos</ion-select-option>
+          <ion-select-option value="input">Insumos</ion-select-option>
+          <ion-select-option value="product">Productos</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-input
+          label="Clasificación (opcional)"
+          labelPlacement="stacked"
+          [(ngModel)]="classification"
+          placeholder="Ej. Caducidad"
+        ></ion-input>
+      </ion-item>
+      <ng-container *ngIf="isAdmin">
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Desde"
+            labelPlacement="stacked"
+            [(ngModel)]="from"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Hasta"
+            labelPlacement="stacked"
+            [(ngModel)]="to"
+          ></ion-input>
+        </ion-item>
+      </ng-container>
+      <ion-button
+        (click)="load()"
+        [disabled]="loading"
+      >
+        Consultar registros
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+  <p
+    class="error"
+    role="alert"
+    *ngIf="message"
+  >
+    {{ message }}
+  </p>
+  <p
+    class="muted"
+    *ngIf="loading"
+  >
+    Cargando registros…
+  </p>
+  <p
+    class="muted"
+    *ngIf="!loading && !records.length"
+  >
+    Todavía no hay mermas registradas para esta consulta.
+  </p>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item *ngFor="let r of records">
+      <ion-label class="ion-text-wrap">
+        <h2>
+          {{ r.affected_name || "Elemento" }} · {{ r.quantity }}
+          {{ r.affected_unit || "unid." }}
+        </h2>
+        <p>
+          {{ typeName(r.affected_type) }} · {{ r.waste_date }} ·
+          {{ r.classification }}
+        </p>
+        <p>{{ r.reason }}</p>
+        <p>
+          {{
+            r.cost_status === "calculated"
+              ? (r.estimated_total_cost | currency: "MXN")
+              : "Costo pendiente"
+          }}
+          · {{ r.user_name || "Usuario #" + r.user_id }}
+          <span *ngIf="r.is_approximate == 1">· Cantidad aproximada</span>
+        </p>
+      </ion-label>
+      <ion-button
+        fill="clear"
+        (click)="show(r)"
+      >
+        Ver
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ng-container *ngIf="isAdmin">
+    <ion-card>
+      <ion-card-content>
+        <h2>Análisis de pérdidas</h2>
+        <p class="muted">
+          Comparaciones e indicadores basados en las mermas registradas.
+        </p>
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Inicio del periodo actual"
+            labelPlacement="stacked"
+            [(ngModel)]="analysisFrom"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Fin del periodo actual"
+            labelPlacement="stacked"
+            [(ngModel)]="analysisTo"
+          ></ion-input>
+        </ion-item>
+        <ion-button
+          (click)="loadAnalysis()"
+          [disabled]="analyticsLoading"
+        >
+          Consultar indicadores y ranking
+        </ion-button>
+        <div
+          *ngIf="indicators"
+          class="metrics"
+        >
+          <div>
+            <p class="muted">Pérdidas estimadas</p>
+            <h2>{{ indicators.waste?.estimated_loss | currency: "MXN" }}</h2>
+          </div>
+          <div>
+            <p class="muted">Respecto a ventas</p>
+            <h2>
+              {{
+                indicators.loss_as_percent_of_sales === null
+                  ? "No
+                            disponible"
+                  : indicators.loss_as_percent_of_sales + "%"
+              }}
+            </h2>
+          </div>
+          <div>
+            <p class="muted">Respecto a compras</p>
+            <h2>
+              {{
+                indicators.loss_as_percent_of_purchases === null
+                  ? "No
+                            disponible"
+                  : indicators.loss_as_percent_of_purchases + "%"
+              }}
+            </h2>
+          </div>
+          <div>
+            <p class="muted">Registros sin costo</p>
+            <h2>{{ indicators.waste?.without_cost }}</h2>
+          </div>
+        </div>
+        <p
+          class="muted"
+          *ngIf="indicators"
+        >
+          El porcentaje respecto a compras no es el costo de ventas. Los
+          registros sin costo estimable no se suman al importe.
+        </p>
+        <h3 *ngIf="indicators">Elementos con mayores pérdidas</h3>
+        <p
+          class="muted"
+          *ngIf="indicators && !ranking.length"
+        >
+          Sin pérdidas para este periodo.
+        </p>
+        <div
+          class="ranking-row"
+          *ngFor="let r of ranking"
+        >
+          <div>
+            <strong>{{ r.affected_name || "Elemento" }}</strong>
+            <p class="muted">
+              {{ typeName(r.affected_type) }} · {{ r.records }} registros ·
+              {{ r.total_quantity }} {{ r.affected_unit || "unid." }}
+            </p>
+          </div>
+          <strong>{{ r.estimated_loss | currency: "MXN" }}</strong>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-content>
+        <h2>Comparar periodos</h2>
+        <p class="muted">Periodo anterior</p>
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Inicio anterior"
+            labelPlacement="stacked"
+            [(ngModel)]="compareFrom"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            type="date"
+            label="Fin anterior"
+            labelPlacement="stacked"
+            [(ngModel)]="compareTo"
+          ></ion-input>
+        </ion-item>
+        <p class="muted">
+          El periodo actual es el seleccionado en Análisis de pérdidas.
+        </p>
+        <ion-button
+          (click)="loadComparison()"
+          [disabled]="analyticsLoading"
+        >
+          Comparar
+        </ion-button>
+        <div
+          *ngIf="comparison"
+          class="comparison"
+        >
+          <div>
+            <p class="muted">Periodo anterior</p>
+            <h2>{{ comparison.period1?.estimated_loss | currency: "MXN" }}</h2>
+          </div>
+          <div>
+            <p class="muted">Periodo actual</p>
+            <h2>{{ comparison.period2?.estimated_loss | currency: "MXN" }}</h2>
+          </div>
+          <div>
+            <p class="muted">Diferencia</p>
+            <h2>{{ comparison.difference | currency: "MXN" }}</h2>
+            <p>
+              {{
+                comparison.percentage_change === null
+                  ? "Sin base para
+                            porcentaje"
+                  : comparison.percentage_change + "%"
+              }}
+            </p>
+          </div>
+        </div>
+        <p
+          class="muted"
+          *ngIf="comparison"
+        >
+          Los importes excluyen las pérdidas sin costo estimable.
+        </p>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+  <!-- Botón para agregar -->
+  <ion-fab
+    class="add-fab"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+  >
+    <ion-fab-button (click)="openCreate()">
+      <span class="add-symbol">+</span>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Ventana de formulario o detalle -->
+<ion-modal
+  [isOpen]="modalOpen"
+  (didDismiss)="modalOpen = false"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Nueva merma o pérdida</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="modalOpen = false"
+            [disabled]="saving"
+          >
+            Cerrar
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-content>
+          <ion-item>
+            <ion-select
+              label="Elemento afectado"
+              labelPlacement="stacked"
+              [(ngModel)]="form.affected_type"
+              (ionChange)="loadCatalog()"
+            >
+              <ion-select-option value="product">Producto</ion-select-option>
+              <ion-select-option
+                value="input"
+                *ngIf="isAdmin"
+              >
+                Insumo
+              </ion-select-option>
+              <ion-select-option
+                value="preparation"
+                disabled
+              >
+                Preparación (pendiente)
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-select
+              label="Seleccionar {{
+                typeName(form.affected_type).toLowerCase()
+              }}"
+              labelPlacement="stacked"
+              [(ngModel)]="form.affected_id"
+              placeholder="Selecciona una opción"
+            >
+              <ion-select-option
+                *ngFor="
+                  let p of form.affected_type === 'input' ? inputs : products
+                "
+                [value]="p.id"
+              >
+                {{ p.name
+                }}{{
+                  p.unit
+                    ? "
+                                (" +
+                      p.unit +
+                      ")"
+                    : ""
+                }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <p
+            class="muted"
+            *ngIf="catalogMessage"
+          >
+            {{ catalogMessage }}
+          </p>
+          <ion-item>
+            <ion-input
+              type="number"
+              label="Cantidad perdida"
+              labelPlacement="stacked"
+              [(ngModel)]="form.quantity"
+              placeholder="Ej. 2 o 1.5"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-checkbox
+              [(ngModel)]="form.is_approximate"
+              labelPlacement="end"
+            >
+              La cantidad es aproximada
+            </ion-checkbox>
+          </ion-item>
+          <ion-item>
+            <ion-input
+              type="date"
+              label="Fecha de la pérdida"
+              labelPlacement="stacked"
+              [(ngModel)]="form.waste_date"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input
+              label="Clasificación"
+              labelPlacement="stacked"
+              [maxlength]="100"
+              [(ngModel)]="form.classification"
+              placeholder="Ej. Caducidad, error de preparación"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-textarea
+              label="Motivo de la pérdida"
+              labelPlacement="stacked"
+              [autoGrow]="true"
+              [maxlength]="500"
+              [(ngModel)]="form.reason"
+              placeholder="Explica qué sucedió"
+            ></ion-textarea>
+          </ion-item>
+          <p class="muted">
+            El costo se calcula en el servidor cuando hay información
+            suficiente. Este registro no modifica automáticamente los
+            porcentajes configurados.
+          </p>
+          <p
+            class="error"
+            role="alert"
+            *ngIf="formError"
+          >
+            {{ formError }}
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button
+          expand="block"
+          (click)="save()"
+          [disabled]="saving"
+        >
+          {{
+            saving
+              ? "Guardando…"
+              : "Guardar
+                    merma"
+          }}
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
+<ion-modal
+  [isOpen]="detailOpen"
+  (didDismiss)="detailOpen = false"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Detalle de la merma</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="detailOpen = false">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card *ngIf="detail">
+        <ion-card-content>
+          <h2>{{ detail.affected_name }} · #{{ detail.id }}</h2>
+          <p>
+            <strong>Tipo:</strong>
+            {{ typeName(detail.affected_type) }}
+          </p>
+          <p>
+            <strong>Cantidad:</strong>
+            {{ detail.quantity }}
+            {{ detail.affected_unit || "unid." }}
+            {{ detail.is_approximate == 1 ? "(aproximada)" : "" }}
+          </p>
+          <p>
+            <strong>Fecha:</strong>
+            {{ detail.waste_date }}
+          </p>
+          <p>
+            <strong>Clasificación:</strong>
+            {{ detail.classification }}
+          </p>
+          <p>
+            <strong>Motivo:</strong>
+            {{ detail.reason }}
+          </p>
+          <p>
+            <strong>Registró:</strong>
+            {{ detail.user_name }}
+          </p>
+          <p>
+            <strong>{{ costLabel(detail) }}:</strong>
+            {{
+              detail.cost_status === "calculated"
+                ? (detail.estimated_total_cost | currency: "MXN")
+                : "No
+                        disponible"
+            }}
+          </p>
+          <p *ngIf="detail.cost_status === 'calculated'">
+            <strong>Costo unitario estimado:</strong>
+            {{ detail.estimated_unit_cost | currency: "MXN" }}
+          </p>
+        </ion-card-content>
+      </ion-card>
+    </ion-content>
+  </ng-template>
+</ion-modal>

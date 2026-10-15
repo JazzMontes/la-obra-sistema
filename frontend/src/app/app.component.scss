@@ -1,0 +1,57 @@
+// Define la apariencia del aviso de errores de la API.
+
+// Ventana de error
+.api-error-modal {
+  --background: #14171a;
+  --border-radius: 18px;
+  --width: min(92vw, 680px);
+  --height: min(85vh, 720px);
+  --box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+.api-error-modal ion-toolbar {
+  --background: #101214;
+  --color: #f7f7f5;
+  --border-color: #292e33;
+}
+
+.api-error-modal ion-title {
+  font-weight: 800;
+}
+
+.api-error-content {
+  --background: #0b0d0f;
+  --color: #f7f7f5;
+}
+
+.api-error-content h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.api-error-content h3 {
+  font-size: 1rem;
+  color: #ffc526;
+  font-weight: 800;
+}
+
+.api-error-content p {
+  color: #9ca3aa;
+  line-height: 1.6;
+}
+
+.api-error-content pre {
+  background: #14171a;
+  color: #f7f7f5;
+  border: 1px solid #292e33;
+  border-left: 3px solid #ffc526;
+  border-radius: 14px;
+  padding: 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}

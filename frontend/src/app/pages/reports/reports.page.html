@@ -1,0 +1,136 @@
+<!-- Muestra la pantalla de reportes. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reportes · La Obra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <div class="reports-wrap">
+    <header class="intro">
+      <span class="eyebrow">LA OBRA / ADMINISTRACIÓN</span>
+      <h1>Así va tu negocio</h1>
+      <p>
+        Ventas confirmadas y pagadas. Los pedidos cancelados no se incluyen.
+      </p>
+    </header>
+    <section
+      class="filters"
+      aria-label="Filtros de reportes"
+    >
+      <ion-item>
+        <ion-input
+          label="Desde"
+          labelPlacement="stacked"
+          type="date"
+          [(ngModel)]="from"
+          [disabled]="loading"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input
+          label="Hasta"
+          labelPlacement="stacked"
+          type="date"
+          [(ngModel)]="to"
+          [disabled]="loading"
+        ></ion-input>
+      </ion-item>
+      <ion-button
+        (click)="load()"
+        [disabled]="loading"
+      >
+        {{ loading ? "Consultando…" : "Actualizar reportes" }}
+      </ion-button>
+    </section>
+    <p
+      *ngIf="error"
+      class="error"
+      role="alert"
+    >
+      {{ error }}
+    </p>
+    <p
+      class="update"
+      aria-live="polite"
+    >
+      {{
+        loading
+          ? "Cargando información…"
+          : updatedAt
+            ? "Última actualización: " + updatedAt
+            : "Selecciona un periodo para consultar"
+      }}
+    </p>
+    <section
+      class="summary"
+      *ngIf="!error && updatedAt"
+    >
+      <div>
+        <span>Total cobrado</span>
+        <strong>
+          {{ total | currency: "MXN" : "symbol-narrow" : "1.2-2" }}
+        </strong>
+      </div>
+      <div>
+        <span>Pedidos pagados</span>
+        <strong>{{ orderCount }}</strong>
+      </div>
+      <div>
+        <span>Unidades vendidas</span>
+        <strong>{{ units }}</strong>
+      </div>
+    </section>
+    <section
+      class="charts"
+      [attr.aria-busy]="loading"
+    >
+      <article class="chart-card">
+        <span class="eyebrow">01 / BARRAS</span>
+        <h2>Productos más vendidos</h2>
+        <p>Unidades vendidas por producto en el periodo.</p>
+        <div
+          #productsChart
+          class="chart"
+        ></div>
+      </article>
+      <article class="chart-card">
+        <span class="eyebrow">02 / LÍNEAS</span>
+        <h2>Ventas por día</h2>
+        <p>Importe cobrado en MXN; los días sin ventas aparecen en cero.</p>
+        <div
+          #dailyChart
+          class="chart"
+        ></div>
+      </article>
+      <article class="chart-card">
+        <span class="eyebrow">03 / DONA</span>
+        <h2>Métodos de pago</h2>
+        <p>Distribución del importe cobrado.</p>
+        <div
+          #methodsChart
+          class="chart"
+        ></div>
+      </article>
+      <article class="chart-card">
+        <span class="eyebrow">04 / ÁREA APILADA</span>
+        <h2>Ventas por categoría</h2>
+        <p>Importe por categoría según la fecha del pago.</p>
+        <div
+          #categoriesChart
+          class="chart"
+        ></div>
+        <p class="footnote">
+          La categoría corresponde a la clasificación actual del producto.
+        </p>
+      </article>
+    </section>
+  </div>
+</ion-content>

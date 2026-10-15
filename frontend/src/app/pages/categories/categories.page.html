@@ -1,0 +1,125 @@
+<!-- Muestra la pantalla de categorías. -->
+
+<!-- Encabezado -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Categorías</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Contenido -->
+<ion-content class="ion-padding">
+  <p *ngIf="loading">Cargando registros…</p>
+  <p *ngIf="!loading && !message && categories.length === 0">
+    Todavía no hay registros.
+  </p>
+  <p class="muted">{{ message }}</p>
+  <!-- Lista de registros -->
+  <ion-list>
+    <ion-item *ngFor="let c of categories">
+      <ion-label>
+        {{ c.name }}
+        <small>({{ c.status }})</small>
+      </ion-label>
+      <ion-button
+        fill="clear"
+        (click)="edit(c)"
+      >
+        Editar
+      </ion-button>
+      <ion-button
+        color="danger"
+        fill="clear"
+        *ngIf="c.status === 'active'"
+        (click)="deactivate(c.id)"
+      >
+        Desactivar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <!-- Botón para agregar -->
+  <ion-fab
+    class="add-fab"
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+  >
+    <ion-fab-button
+      (click)="openCreate()"
+      aria-label="Agregar categoría"
+    >
+      <span
+        class="add-symbol"
+        aria-hidden="true"
+      >
+        +
+      </span>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Ventana de formulario o detalle -->
+<ion-modal
+  [isOpen]="modalOpen"
+  (didDismiss)="cancel()"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>
+          {{ editingId ? "Editar categoría" : "Nuevo categoría" }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="cancel()"
+            [disabled]="saving"
+          >
+            Cerrar
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <!-- Contenido -->
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-content>
+          <ion-input
+            label="Nombre"
+            labelPlacement="stacked"
+            [(ngModel)]="name"
+          ></ion-input>
+        </ion-card-content>
+      </ion-card>
+      <p role="alert">{{ message }}</p>
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <ion-button
+          class="modal-save-button"
+          expand="block"
+          style="
+            --background: #ffc526;
+            --background-hover: #ffd24f;
+            --background-activated: #ffb800;
+            --color: #101214;
+            --border-radius: 13px;
+            --box-shadow: 0 12px 30px rgba(255, 197, 38, 0.13);
+            width: calc(100% - 32px);
+            margin: 10px 16px;
+            min-height: 52px;
+            font-weight: 900;
+            text-transform: none;
+          "
+          (click)="save()"
+          [disabled]="saving"
+        >
+          {{ saving ? "Guardando…" : editingId ? "Actualizar" : "Agregar" }}
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
