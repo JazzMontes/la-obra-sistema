@@ -1,42 +1,10 @@
-// Reúne las dependencias de la pantalla de orígenes de datos.
-
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  IonBackButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
 import { RouterModule } from '@angular/router';
-
+import { SharedModule } from '../../shared/shared.module';
 import { DataOriginsPage } from './data-origins.page';
 
-// Dependencias del módulo
 @NgModule({
+  imports: [SharedModule, RouterModule.forChild([{ path: '', component: DataOriginsPage }])],
   declarations: [DataOriginsPage],
-  imports: [
-    CommonModule,
-    IonBackButton,
-    IonButtons,
-    IonContent,
-    IonHeader,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonTitle,
-    IonToolbar,
-    RouterModule.forChild([
-      {
-        path: '',
-        component: DataOriginsPage,
-      },
-    ]),
-  ],
 })
 export class DataOriginsPageModule {}

@@ -1,156 +1,71 @@
-<!-- Muestra la pantalla de inicio de sesión. -->
+<ion-content>
+  <div class="login">
+    <aside class="hero">
+      <div class="hero-brand">
+        <div class="mark">LO</div>
+        <span>La Obra</span>
+      </div>
+      <div class="hero-copy">
+        <h2>Compras, inventario, costos y ventas en un mismo lugar.</h2>
+        <p>Lo que compras alimenta el inventario y el costo de tus recetas. Lo que vendes se descuenta solo.</p>
+      </div>
+      <div class="hero-foot">Sistema de punto de venta y costos</div>
+    </aside>
 
-<!-- Encabezado -->
+    <main class="panel">
+      <form class="form" (ngSubmit)="login()">
+        <div class="mobile-brand">
+          <div class="mark">LO</div>
+          <span>La Obra</span>
+        </div>
+        <h1>Iniciar sesión</h1>
+        <p class="muted">Usa la cuenta que te dio el administrador.</p>
 
-<ion-header>
-  <ion-toolbar>
-    <ion-title>La Obra</ion-title>
-  </ion-toolbar>
-</ion-header>
+        <div class="field">
+          <label for="lg-user">Usuario</label>
+          <input id="lg-user" name="username" class="input" [(ngModel)]="username" autocomplete="username" autocapitalize="off" />
+        </div>
+        <div class="field">
+          <label for="lg-pass">Contraseña</label>
+          <div class="input-group">
+            <input id="lg-pass" name="password" class="input" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" autocomplete="current-password" />
+            <button type="button" class="addon eye" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <app-icon name="eye"></app-icon>
+            </button>
+          </div>
+        </div>
 
-<!-- Contenido -->
-<ion-content class="ion-padding">
-  <h1>Iniciar sesión</h1>
+        <div class="form-error" *ngIf="error">
+          {{ error }}
+          <button type="button" class="link small tech-link" *ngIf="techText" (click)="showTech = !showTech">{{ showTech ? 'Ocultar' : 'Ver' }} detalles técnicos</button>
+          <pre *ngIf="showTech">{{ techText }}</pre>
+        </div>
 
-  <!-- Usuario -->
-  <ion-item>
-    <ion-input
-      label="Usuario"
-      labelPlacement="stacked"
-      type="text"
-      [(ngModel)]="username"
-    ></ion-input>
-  </ion-item>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" [disabled]="loading">{{ loading ? 'Entrando…' : 'Entrar' }}</button>
 
-  <!-- Contraseña -->
-  <ion-item>
-    <ion-input
-      label="Contraseña"
-      labelPlacement="stacked"
-      type="password"
-      [(ngModel)]="password"
-    ></ion-input>
-  </ion-item>
-
-  <!-- Estado de conexión -->
-  <section
-    class="connection-status"
-    aria-live="polite"
-  >
-    <div class="connection-summary">
-      <span
-        class="status-dot"
-        [class.checking]="loading"
-        [class.failed]="!!errorMessage"
-        [class.connected]="connectionChecked && !errorMessage && !loading"
-      ></span>
-      <span class="status-label">
-        {{
-          loading
-            ? "Comprobando conexión..."
-            : errorMessage
-              ? "Revisar conexión o credenciales"
-              : connectionChecked
-                ? "Acceso correcto"
-                : "Conexión sin comprobar"
-        }}
-      </span>
-      <button
-        type="button"
-        class="details-toggle"
-        (click)="showConnectionDetails = !showConnectionDetails"
-        [attr.aria-expanded]="showConnectionDetails"
-        aria-controls="connection-details"
-      >
-        {{
-          showConnectionDetails ? "Ocultar detalles" : "Ver detalles técnicos"
-        }}
-      </button>
-    </div>
-    <div
-      *ngIf="showConnectionDetails"
-      id="connection-details"
-      class="connection-details"
-    >
-      <div class="details-heading">Información técnica de la API</div>
-      <pre>{{ debugText }}</pre>
-    </div>
-  </section>
-
-  <!-- Configuración opcional del servidor: no requiere conexión a la API -->
-  <div class="server-settings-toggle">
-    <ion-button
-      fill="clear"
-      size="small"
-      (click)="toggleServerSettings()"
-      [attr.aria-expanded]="showServerSettings"
-      aria-label="Configurar servidor"
-    >
-      <ion-icon
-        slot="start"
-        name="settings-outline"
-      ></ion-icon>
-      Configurar servidor
-    </ion-button>
+        <!-- Servidor -->
+        <div class="server" [class.open]="serverOpen">
+          <button type="button" class="server-toggle" (click)="serverOpen = !serverOpen">
+            <span class="status-dot" [class.ok]="serverStatus === 'ok'" [class.fail]="serverStatus === 'fail'" [class.warn]="serverStatus === 'warn'"></span>
+            <span class="grow">
+              {{ serverIp ? 'Servidor ' + serverIp : 'Configura el servidor' }}
+              <span class="small muted" *ngIf="serverMessage"> · {{ serverMessage }}</span>
+            </span>
+            <app-icon name="chevron" class="chev"></app-icon>
+          </button>
+          <div class="server-body" *ngIf="serverOpen">
+            <div class="field">
+              <label for="lg-ip">IP de la computadora con XAMPP</label>
+              <input id="lg-ip" name="ip" class="input" [(ngModel)]="serverIp" placeholder="192.168.1.50" inputmode="decimal" />
+              <span class="hint">En Windows la ves con el comando ipconfig. El teléfono debe estar en la misma red Wi-Fi.</span>
+            </div>
+            <div class="row">
+              <button class="btn btn-dark btn-sm" type="button" (click)="saveServer()" [disabled]="testing">{{ testing ? 'Probando…' : 'Guardar y probar' }}</button>
+              <a class="link small" routerLink="/data-origins">Configuración avanzada</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
   </div>
-
-  <section
-    *ngIf="showServerSettings"
-    class="server-settings"
-  >
-    <p>IP de la computadora donde está ejecutándose XAMPP</p>
-    <ion-item>
-      <ion-input
-        label="IP del servidor"
-        labelPlacement="stacked"
-        type="text"
-        inputmode="decimal"
-        placeholder="192.168.1.122"
-        [(ngModel)]="serverIp"
-      ></ion-input>
-    </ion-item>
-    <ion-text
-      color="danger"
-      *ngIf="serverError"
-    >
-      <p>{{ serverError }}</p>
-    </ion-text>
-    <ion-button
-      expand="block"
-      type="button"
-      (click)="saveServerIp()"
-    >
-      Guardar IP
-    </ion-button>
-    <ion-button
-      expand="block"
-      fill="outline"
-      routerLink="/data-origins"
-    >
-      Ver orígenes de datos
-    </ion-button>
-  </section>
-  <ion-text
-    color="success"
-    *ngIf="serverMessage"
-  >
-    <p>{{ serverMessage }}</p>
-  </ion-text>
-
-  <!-- Mensaje de error -->
-  <ion-text
-    color="danger"
-    *ngIf="errorMessage"
-  >
-    <p>{{ errorMessage }}</p>
-  </ion-text>
-
-  <!-- Botón -->
-  <ion-button
-    expand="block"
-    (click)="login()"
-    [disabled]="loading"
-  >
-    {{ loading ? "Iniciando..." : "Iniciar sesión" }}
-  </ion-button>
 </ion-content>

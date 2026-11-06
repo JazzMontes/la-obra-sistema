@@ -1,44 +1,25 @@
-// Reúne los módulos y componentes principales de la aplicación.
-
+// Módulo principal: estructura de Ionic (aplicación, menú lateral y navegación).
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-
 import {
   IonicRouteStrategy,
   provideIonicAngular,
   IonApp,
+  IonMenu,
   IonRouterOutlet,
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonContent,
+  IonSplitPane,
 } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './shared/shared.module';
 
-// Dependencias del módulo
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    IonApp,
-    IonRouterOutlet,
-    IonModal,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonButton,
-    IonContent,
-    AppRoutingModule,
-  ],
+  imports: [BrowserModule, IonApp, IonMenu, IonRouterOutlet, IonSplitPane, SharedModule, AppRoutingModule],
   providers: [
-    provideIonicAngular(),
+    provideIonicAngular({ mode: 'md' }),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],
   bootstrap: [AppComponent],

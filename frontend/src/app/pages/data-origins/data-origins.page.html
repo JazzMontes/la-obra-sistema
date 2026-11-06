@@ -1,43 +1,78 @@
-<!-- Muestra la pantalla de orígenes de datos. -->
-
-<!-- Encabezado -->
-
-<ion-header>
+<ion-header class="app-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
+      <ion-menu-button *ngIf="loggedIn"></ion-menu-button>
+      <a class="btn btn-ghost btn-icon" routerLink="/login" *ngIf="!loggedIn" aria-label="Volver"><app-icon name="back"></app-icon></a>
     </ion-buttons>
-    <ion-title>Orígenes de datos</ion-title>
+    <ion-title>Servidor</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<!-- Contenido -->
-<ion-content class="ion-padding">
-  <h2>Configuración del servidor</h2>
-  <!-- Lista de registros -->
-  <ion-list>
-    <ion-item>
-      <ion-label>IP: {{ origin.ip || "Sin configurar" }}</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>Protocolo: {{ origin.protocol }}</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>Puerto Apache: {{ origin.apachePort }}</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>Puerto MySQL (interno PHP): {{ origin.mysqlPort }}</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label class="ion-text-wrap">
-        Ruta base: {{ origin.basePath }}
-      </ion-label>
-    </ion-item>
-  </ion-list>
-  <h3>JSON guardado en el dispositivo</h3>
-  <pre>{{ json }}</pre>
-  <p>
-    El puerto MySQL es informativo: Android se conecta a Apache, no directamente
-    a MySQL.
-  </p>
+<ion-content>
+  <div class="page page-narrow">
+    <div class="page-intro">
+      <div>
+        <h1>Conexión con el servidor</h1>
+        <p>La app (cliente) guarda y consulta la información en la API REST de la computadora con XAMPP (servidor) y su base de datos MySQL.</p>
+      </div>
+    </div>
+
+    <div class="diagram card card-pad">
+      <div class="node"><app-icon name="pos"></app-icon><strong>App</strong><span>Este dispositivo</span></div>
+      <div class="link-line"><span>HTTP + JSON</span></div>
+      <div class="node"><app-icon name="server"></app-icon><strong>API PHP</strong><span>{{ form.ip || 'sin IP' }}:{{ form.apachePort }}</span></div>
+      <div class="link-line"><span>PDO</span></div>
+      <div class="node"><app-icon name="layers"></app-icon><strong>MySQL</strong><span>puerto {{ form.mysqlPort }}</span></div>
+    </div>
+
+    <div class="card card-pad stack">
+      <div class="grid-2">
+        <div class="field">
+          <label for="do-ip">IP del servidor</label>
+          <input id="do-ip" class="input" [(ngModel)]="form.ip" placeholder="192.168.1.50" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="do-port">Puerto de Apache</label>
+          <input id="do-port" class="input" type="number" [(ngModel)]="form.apachePort" />
+        </div>
+        <div class="field">
+          <label for="do-proto">Protocolo</label>
+          <select id="do-proto" class="select" [(ngModel)]="form.protocol">
+            <option value="http">http</option>
+            <option value="https">https</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="do-path">Ruta de la API</label>
+          <input id="do-path" class="input" [(ngModel)]="form.basePath" />
+        </div>
+      </div>
+      <div class="url num">{{ preview }}</div>
+      <div class="row wrap">
+        <button class="btn btn-primary" type="button" (click)="save()">Guardar</button>
+        <button class="btn" type="button" (click)="test()" [disabled]="testing">{{ testing ? 'Probando…' : 'Probar conexión' }}</button>
+      </div>
+      <div class="notice" *ngIf="result" [class.success]="result.ok" [class.danger]="!result.ok">
+        <app-icon [name]="result.ok ? 'check' : 'alert'"></app-icon>
+        <div>
+          <strong>{{ result.ok ? 'Conectado' : 'Sin conexión' }}</strong> · {{ result.text }}
+          <span *ngIf="result.ms"> · {{ result.ms }} ms</span>
+        </div>
+      </div>
+      <div class="notice warning" *ngIf="result?.missing?.length">
+        <app-icon name="alert"></app-icon>
+        <div>
+          <strong>La base de datos no está actualizada.</strong>
+          Corre en phpMyAdmin, en este orden:
+          <ul class="mig">
+            <li *ngFor="let m of result.migrations"><code>database/{{ m }}</code></li>
+          </ul>
+          <span class="small">Falta: {{ result.missing.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Configuración guardada (JSON)</h2></div>
+    <pre class="card card-pad code">{{ json }}</pre>
+  </div>
 </ion-content>

@@ -24,6 +24,9 @@ export class ApiDiagnosticsService {
 
   // Dependencias e inicio
   constructor() {
+    // Ninguna solicitud se queda esperando para siempre si el servidor no responde.
+    if (!axios.defaults.timeout) axios.defaults.timeout = 15000;
+
     axios.interceptors.request.use((config) => {
       this.last = this.describe(
         config,
@@ -72,8 +75,7 @@ export class ApiDiagnosticsService {
             'error'
           );
 
-          if (!this.isLogin(response.config)) this.showError();
-
+          // Los errores de validación los muestra cada pantalla como aviso breve.
           const error: any = new Error(message);
           error.config = response.config;
           error.response = response;
@@ -97,7 +99,11 @@ export class ApiDiagnosticsService {
         const message =
           typeof error.response?.data?.message === 'string'
             ? error.response.data.message
-            : error.message;
+            : error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
+              ? 'El servidor tardó demasiado en responder'
+              : error.code === 'ERR_NETWORK'
+                ? 'No hay conexión con el servidor'
+                : error.message;
         this.last = this.describe(
           error.config,
           error.response?.status || 0,
@@ -107,7 +113,9 @@ export class ApiDiagnosticsService {
           'error'
         );
 
-        if (!this.isLogin(error.config)) this.showError();
+        // La ventana de diagnóstico solo se abre cuando no hubo respuesta del servidor
+        // (red caída, servidor apagado, CORS o tiempo agotado).
+        if (!this.isLogin(error.config) && !error.response) this.showError();
 
         return Promise.reject(error);
       }
@@ -177,6 +185,8 @@ export class ApiDiagnosticsService {
           ? 'Dispositivo sin conexión'
           : outcome === 'pending'
             ? 'Esperando respuesta'
+            : /tardó demasiado/.test(message || '')
+              ? 'Tiempo de espera agotado'
             : 'Sin respuesta del servidor (revisar red, CORS o servidor)',
       message: message || 'Error en la solicitud',
       requestHeaders: this.scrub(

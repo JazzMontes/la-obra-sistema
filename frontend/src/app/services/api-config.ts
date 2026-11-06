@@ -52,6 +52,20 @@ export class ApiConfigService {
     localStorage.removeItem(this.OLD_KEY);
   }
 
+  // Guardar la configuración completa (IP, protocolo, puerto y ruta de la API)
+  setOrigin(o: Partial<DataOrigin>): void {
+    const next = { ...this.getOrigin(), ...o };
+    next.ip = String(next.ip || '').trim();
+    if (!this.isValidServerIp(next.ip)) throw new Error('Ingresa una dirección IPv4 válida');
+    const port = Number(next.apachePort);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Puerto inválido');
+    next.apachePort = port;
+    next.protocol = next.protocol === 'https' ? 'https' : 'http';
+    next.basePath = '/' + String(next.basePath || '').trim().replace(/^\/+|\/+$/g, '');
+    localStorage.setItem(this.KEY, JSON.stringify(next));
+    localStorage.removeItem(this.OLD_KEY);
+  }
+
   // Validar IP del servidor
   isValidServerIp(ip: string): boolean {
     const parts = ip.split('.');

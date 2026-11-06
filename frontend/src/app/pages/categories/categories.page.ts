@@ -1,106 +1,99 @@
-// Controla la consulta y gestión de categorías.
-
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { Categories } from '../../services/categories';
+// Categorías del menú (bebidas, hamburguesas, postres…). Agrupan los productos en el punto de venta.
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ApiService, errorMessage } from '../../services/api';
+import { UiService } from '../../services/ui';
+import { autoRefresh } from '../../services/render';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-categories',
   templateUrl: 'categories.page.html',
   styleUrls: ['categories.page.scss'],
   standalone: false,
 })
 export class CategoriesPage {
+  // Actualiza la vista al terminar peticiones y al entrar a la pantalla (Angular sin zone.js)
+  private readonly refresher = autoRefresh();
 
-  // Datos y estado
-  categories: any[] = [];
-  name = '';
+  list: any[] = [];
+  loading = true;
+  newName = '';
   editingId: number | null = null;
-  message = '';
-  modalOpen = false;
-  saving = false;
-  loading = false;
+  editName = '';
+  busy = false;
 
-  // Abrir formulario de registro
-  openCreate() {
-    this.cancel();
-    this.message = '';
-    this.modalOpen = true;
+  constructor(private api: ApiService, private ui: UiService) {}
+
+  ionViewWillEnter() {
+    this.load();
   }
 
-  // Dependencias e inicio
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private service: Categories
-  ) {}
-
-  // Entrada a la pantalla
-  async ionViewWillEnter() {
-    await this.load();
-  }
-
-  // Cargar datos
   async load() {
-    this.loading = true;
-    this.message = '';
-
     try {
-      const r = await this.service.getAll();
-      this.categories = r.categories || r.data || [];
-    } catch (e: any) {
-      this.message =
-        e.response?.data?.message || 'No se pudieron cargar las categorías';
+      this.list = (await this.api.get('categories/index.php')).categories;
+    } catch (e) {
+      this.ui.error(errorMessage(e, 'No se pudieron cargar las categorías'));
     } finally {
       this.loading = false;
-      this.cdr.detectChanges();
     }
   }
 
-  // Preparar edición
-  edit(c: any) {
-    this.modalOpen = true;
-    this.editingId = Number(c.id);
-    this.name = c.name;
+  async add() {
+    const name = this.newName.trim();
+    if (!name || this.busy) return;
+    this.busy = true;
+    try {
+      await this.api.post('categories/create.php', { name });
+      this.newName = '';
+      this.ui.success('Categoría agregada');
+      await this.load();
+    } catch (e) {
+      this.ui.error(errorMessage(e));
+    } finally {
+      this.busy = false;
+    }
   }
 
-  // Cancelar
-  cancel() {
-    this.modalOpen = false;
-    this.editingId = null;
-    this.name = '';
+  startEdit(c: any) {
+    this.editingId = c.id;
+    this.editName = c.name;
   }
 
-  // Guardar datos
-  async save() {
-    if (this.saving) return;
-
-    if (!this.name.trim()) {
-      this.message = 'Completa los datos requeridos con valores válidos';
+  async saveEdit(c: any) {
+    const name = this.editName.trim();
+    if (!name) return;
+    if (name === c.name) {
+      this.editingId = null;
       return;
     }
-
-    this.saving = true;
-
     try {
-      if (this.editingId) await this.service.update(this.editingId, this.name);
-      else await this.service.create(this.name);
-
-      this.cancel();
+      await this.api.patch('categories/update.php', { id: c.id, name });
+      this.editingId = null;
+      this.ui.success('Categoría actualizada');
       await this.load();
-    } catch (e: any) {
-      this.message = e.response?.data?.message || 'No se pudo guardar';
-    } finally {
-      this.saving = false;
-      this.cdr.detectChanges();
+    } catch (e) {
+      this.ui.error(errorMessage(e));
     }
   }
 
-  // Desactivar registro
-  async deactivate(id: number) {
+  async toggle(c: any) {
     try {
-      await this.service.deactivate(Number(id));
+      await this.api.patch(c.status === 'active' ? 'categories/deactivate.php' : 'categories/activate.php', { id: c.id });
       await this.load();
-    } catch (e: any) {
-      this.message = e.response?.data?.message || 'No se pudo desactivar';
+    } catch (e) {
+      this.ui.error(errorMessage(e));
+    }
+  }
+
+  async remove(c: any) {
+    const ok = await this.ui.confirm('Eliminar categoría', `¿Eliminar "${c.name}"? Si tiene productos no se podrá; desactívala en su lugar.`, 'Eliminar', true);
+    if (!ok) return;
+    try {
+      await this.api.delete('categories/delete.php', { id: c.id });
+      this.ui.success('Categoría eliminada');
+      await this.load();
+    } catch (e) {
+      this.ui.error(errorMessage(e));
     }
   }
 }

@@ -1,126 +1,109 @@
-// Controla el inicio de sesión y la configuración del servidor.
-
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+// Inicio de sesión y configuración rápida del servidor.
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
+import axios from 'axios';
 import { Auth } from '../../services/auth';
 import { ApiConfigService } from '../../services/api-config';
 import { ApiDiagnosticsService } from '../../services/api-diagnostics';
+import { errorMessage } from '../../services/api';
+import { autoRefresh } from '../../services/render';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+  templateUrl: 'login.page.html',
+  styleUrls: ['login.page.scss'],
   standalone: false,
 })
-export class LoginPage implements OnInit {
+export class LoginPage {
+  // Actualiza la vista al terminar peticiones y al entrar a la pantalla (Angular sin zone.js)
+  private readonly refresher = autoRefresh();
 
-  // Datos y estado
-  username: string = '';
-  password: string = '';
-  showServerSettings = false;
+  username = '';
+  password = '';
+  showPassword = false;
+  loading = false;
+  error = '';
+  showTech = false;
+  techText = '';
+
+  serverOpen = false;
   serverIp = '';
+  testing = false;
+  serverStatus: 'unknown' | 'ok' | 'warn' | 'fail' = 'unknown';
   serverMessage = '';
-  serverError = '';
 
-  debugText = 'Sin peticiones todavía';
-  showConnectionDetails = false;
-  connectionChecked = false;
-  loading: boolean = false;
-  errorMessage: string = '';
-
-  // Dependencias e inicio
   constructor(
     private auth: Auth,
+    private config: ApiConfigService,
     private diagnostics: ApiDiagnosticsService,
-    private apiConfig: ApiConfigService,
-    private router: Router,
-    private changeDetector: ChangeDetectorRef
+    private router: Router
   ) {}
 
-  // Inicialización
-  ngOnInit() {
-    this.serverIp = this.apiConfig.getServerIp();
+  ionViewWillEnter() {
+    this.serverIp = this.config.getServerIp();
+    if (!this.serverIp) this.serverOpen = true;
+    else this.testServer(true);
   }
 
-  // Mostrar configuración del servidor
-  toggleServerSettings() {
-    this.showServerSettings = !this.showServerSettings;
-    this.serverIp = this.apiConfig.getServerIp();
-    this.serverMessage = '';
-    this.serverError = '';
-  }
-
-  // Guardar IP del servidor
-  saveServerIp() {
-    this.serverMessage = '';
-    this.serverError = '';
-
+  saveServer() {
     try {
-      this.apiConfig.setServerIp(this.serverIp);
-      this.serverMessage = 'IP guardada correctamente';
-      this.showServerSettings = false;
-    } catch (error: any) {
-      this.serverError = error.message || 'IP inválida';
+      this.config.setServerIp(this.serverIp);
+      this.testServer();
+    } catch (e: any) {
+      this.serverStatus = 'fail';
+      this.serverMessage = e.message;
     }
   }
 
-  // Iniciar sesión
+  async testServer(silent = false) {
+    this.testing = true;
+    try {
+      const r = await axios.get(`${this.config.getApiUrl()}/health.php`, { timeout: 6000 });
+      const dbOk = r.data?.database_ok !== false;
+      this.serverStatus = !r.data?.success ? 'fail' : dbOk ? 'ok' : 'warn';
+      this.serverMessage = !r.data?.success
+        ? 'El servidor respondió con un error'
+        : dbOk ? 'Servidor conectado' : 'Faltan migraciones: ' + (r.data.run_migrations ?? []).join(', ');
+      if (r.data?.success && !silent) this.serverOpen = false;
+    } catch (e) {
+      this.serverStatus = 'fail';
+      this.serverMessage = errorMessage(e, 'No se pudo conectar');
+      if (!silent) this.serverOpen = true;
+    } finally {
+      this.testing = false;
+    }
+  }
+
   async login() {
     if (this.loading) return;
-
-    this.errorMessage = '';
-    this.connectionChecked = false;
-    this.diagnostics.last = null;
-    this.debugText = 'Preparando solicitud a la API...';
-
+    this.error = '';
+    this.showTech = false;
     if (!this.username.trim() || !this.password) {
-      this.errorMessage = 'Usuario y contraseña son obligatorios';
-      this.diagnostics.reportLocalError(this.errorMessage);
-      this.debugText = this.diagnostics.asText();
-      this.changeDetector.markForCheck();
+      this.error = 'Escribe tu usuario y contraseña';
       return;
     }
-
     try {
-      this.apiConfig.getApiUrl();
-    } catch (error: any) {
-      this.errorMessage = error.message || 'Configura la IP del servidor';
-      this.diagnostics.reportLocalError(this.errorMessage);
-      this.debugText = this.diagnostics.asText();
-      this.changeDetector.markForCheck();
+      this.config.getApiUrl();
+    } catch (e: any) {
+      this.error = e.message;
+      this.serverOpen = true;
       return;
     }
-
     this.loading = true;
-    this.changeDetector.markForCheck();
-
     try {
-      const response = await this.auth.login(this.username, this.password);
-
-      this.debugText = this.diagnostics.asText();
-      this.connectionChecked = true;
-
-      if (response.success) {
-        if (response.user.must_change_password) {
-          await this.router.navigate(['/change-password']);
-        } else {
-          await this.router.navigate(['/home']);
-        }
-      }
-    } catch (error: any) {
-      this.connectionChecked = true;
-      this.debugText = this.diagnostics.asText();
-
-      if (error.response?.data?.message) {
-        this.errorMessage = error.response.data.message;
+      const r = await this.auth.login(this.username, this.password);
+      if (r.success) {
+        this.password = '';
+        await this.router.navigateByUrl(r.user.must_change_password ? '/change-password' : '/home', { replaceUrl: true });
       } else {
-        this.errorMessage = `Error: ${error?.message || 'No se pudo conectar'}`;
+        this.error = r.message || 'No se pudo iniciar sesión';
       }
+    } catch (e) {
+      this.error = errorMessage(e, 'No se pudo iniciar sesión');
+      this.techText = this.diagnostics.asText();
     } finally {
-      this.debugText = this.diagnostics.asText();
       this.loading = false;
-      // Axios puede completar fuera del ciclo de actualización de Angular.
-      this.changeDetector.markForCheck();
     }
   }
 }

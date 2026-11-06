@@ -1,236 +1,134 @@
-// Controla la consulta y gestión de gastos.
-
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { Expenses } from '../../services/expenses';
+// Gastos y salidas de caja que no son compras de insumos (gas, limpieza, propinas, etc.).
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ApiService, errorMessage } from '../../services/api';
+import { UiService } from '../../services/ui';
 import { Auth } from '../../services/auth';
+import { todayIso } from '../../shared/format.pipes';
+import { autoRefresh } from '../../services/render';
+import { Memo } from '../../shared/memo';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-expenses',
   templateUrl: 'expenses.page.html',
   styleUrls: ['expenses.page.scss'],
   standalone: false,
 })
 export class ExpensesPage {
+  // Actualiza la vista al terminar peticiones y al entrar a la pantalla (Angular sin zone.js)
+  private readonly memo = new Memo();
+  private readonly refresher = autoRefresh();
 
-  // Datos y estado
-  records: any[] = [];
-  detail: any = null;
-  history: any[] = [];
-  loading = false;
+  readonly suggestions = ['Gas', 'Artículos de limpieza', 'Hielo', 'Transporte', 'Mantenimiento', 'Propinas'];
+
+  expenses: any[] = [];
+  loading = true;
+  from = todayIso(-6);
+  to = todayIso();
+  showCancelled = false;
+
+  open = false;
+  editing: any = null;
+  form: any = {};
   saving = false;
-  modalOpen = false;
-  detailOpen = false;
-  historyOpen = false;
-  message = '';
-  cancelOpen = false;
-  cancelTarget: any = null;
+  formError = '';
+
+  cancelling: any = null;
   cancelReason = '';
-  cancelError = '';
-  cancelling = false;
-  editingId: number | null = null;
-  form: any = { amount: null, reason: '', change_reason: '' };
-  status = '';
-  from = '';
-  to = '';
-  userId: any = null;
-  isAdmin = false;
+  history: any[] | null = null;
 
-  // Dependencias e inicio
-  constructor(
-    private api: Expenses,
-    private auth: Auth,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.isAdmin = this.auth.getStoredUser()?.role === 'admin';
+  constructor(private api: ApiService, private ui: UiService, private auth: Auth) {}
+
+  get isAdmin(): boolean {
+    return this.auth.getStoredUser()?.role === 'admin';
   }
 
-  // Entrada a la pantalla
-  async ionViewWillEnter() {
-    await this.load();
+  ionViewWillEnter() {
+    this.load();
   }
 
-  // Cargar datos
   async load() {
     this.loading = true;
-
     try {
-      const r = await this.api.list({
-        status: this.status || undefined,
-        date_from: this.from || undefined,
-        date_to: this.to || undefined,
-        user_id: this.isAdmin && this.userId ? this.userId : undefined,
-      });
-      this.records = r.expenses || [];
-      this.message = '';
-    } catch (e: any) {
-      this.message =
-        e.response?.data?.message || 'No se pudieron consultar los gastos';
+      const params = this.isAdmin ? { date_from: this.from, date_to: this.to } : {};
+      this.expenses = (await this.api.get('expenses/index.php', params)).expenses;
+    } catch (e) {
+      this.ui.error(errorMessage(e, 'No se pudieron cargar los gastos'));
     } finally {
       this.loading = false;
-      this.cdr.detectChanges();
     }
   }
 
-  // Abrir formulario de registro
-  openCreate() {
-    this.editingId = null;
+  get visible(): any[] {
+    return this.memo.get('visible', [this.expenses, this.showCancelled], () => this.expenses.filter(e => this.showCancelled || e.status === 'active'));
+  }
+
+  get total(): number {
+    return this.expenses.filter(e => e.status === 'active').reduce((s, e) => s + Number(e.amount), 0);
+  }
+
+  openNew() {
+    this.editing = null;
     this.form = { amount: null, reason: '', change_reason: '' };
-    this.message = '';
-    this.modalOpen = true;
+    this.formError = '';
+    this.history = null;
+    this.open = true;
   }
 
-  // Preparar edición
-  edit(e: any) {
+  async openEdit(e: any) {
     if (e.status !== 'active') return;
-
-    this.editingId = +e.id;
-    this.form = { amount: +e.amount, reason: e.reason, change_reason: '' };
-    this.message = '';
-    this.modalOpen = true;
-  }
-
-  // Consultar detalle
-  async show(e: any) {
-    try {
-      this.detail = (await this.api.show(+e.id)).expense;
-      this.detailOpen = true;
-    } catch (x: any) {
-      this.message =
-        x.response?.data?.message || 'No se pudo consultar el gasto';
+    this.editing = e;
+    this.form = { amount: Number(e.amount), reason: e.reason, change_reason: '' };
+    this.formError = '';
+    this.history = null;
+    this.open = true;
+    if (this.isAdmin) {
+      try {
+        this.history = (await this.api.get('expenses/history.php', { id: e.id })).history;
+      } catch {
+        this.history = null;
+      }
     }
   }
 
-  // Consultar historial
-  async viewHistory(e: any) {
-    try {
-      this.history = (await this.api.history(+e.id)).history || [];
-      this.historyOpen = true;
-    } catch (x: any) {
-      this.message =
-        x.response?.data?.message || 'No se pudo consultar el historial';
-    }
-  }
-
-  // Guardar datos
   async save() {
     if (this.saving) return;
-
-    if (
-      !(Number(this.form.amount) > 0) ||
-      !String(this.form.reason || '').trim() ||
-      (this.editingId && !String(this.form.change_reason || '').trim())
-    ) {
-      this.message =
-        'Completa monto, motivo y, si corriges, la razón del cambio';
-      return;
-    }
-
+    this.formError = '';
+    if (!(Number(this.form.amount) > 0)) return void (this.formError = 'Indica el monto');
+    if (!String(this.form.reason || '').trim()) return void (this.formError = 'Escribe el concepto');
     this.saving = true;
-
     try {
-      if (this.editingId)
-        await this.api.update({
-          id: this.editingId,
-          amount: +this.form.amount,
-          reason: this.form.reason.trim(),
-          change_reason: this.form.change_reason.trim(),
-        });
-      else
-        await this.api.create({
-          amount: +this.form.amount,
-          reason: this.form.reason.trim(),
-        });
-
-      this.modalOpen = false;
+      const body = { amount: Math.round(Number(this.form.amount) * 100) / 100, reason: String(this.form.reason).trim() };
+      if (this.editing) {
+        await this.api.patch('expenses/update.php', { id: this.editing.id, ...body, change_reason: this.form.change_reason || null });
+      } else {
+        await this.api.post('expenses/create.php', body);
+      }
+      this.open = false;
+      this.ui.success(this.editing ? 'Gasto actualizado' : 'Gasto registrado');
       await this.load();
-    } catch (x: any) {
-      this.message = x.response?.data?.message || 'No se pudo guardar';
+    } catch (e) {
+      this.formError = errorMessage(e, 'No se pudo guardar el gasto');
     } finally {
       this.saving = false;
-      this.cdr.detectChanges();
     }
   }
 
-  // Abrir cancelación
-  openCancel(e: any) {
-    if (e.status !== 'active') return;
-
-    this.cancelTarget = e;
+  askCancel() {
+    this.cancelling = this.editing;
     this.cancelReason = '';
-    this.cancelError = '';
-    this.cancelOpen = true;
+    this.open = false;
   }
 
-  // Cerrar cancelación
-  closeCancel() {
-    if (!this.cancelling) this.cancelOpen = false;
-  }
-
-  // Confirmar cancelación
   async confirmCancel() {
-    if (this.cancelling || !this.cancelTarget) return;
-
-    const reason = this.cancelReason.trim();
-
-    if (!reason) {
-      this.cancelError = 'Escribe el motivo de la cancelación.';
-      return;
-    }
-
-    this.cancelling = true;
-    this.cancelError = '';
-
+    if (!this.cancelReason.trim()) return this.ui.error('Escribe el motivo de la cancelación');
     try {
-      await this.api.cancel(+this.cancelTarget.id, reason);
-      this.cancelOpen = false;
+      await this.api.patch('expenses/cancel.php', { id: this.cancelling.id, cancellation_reason: this.cancelReason.trim() });
+      this.cancelling = null;
+      this.ui.success('Gasto cancelado');
       await this.load();
-    } catch (x: any) {
-      this.cancelError =
-        x.response?.data?.message || 'No se pudo cancelar el gasto.';
-    } finally {
-      this.cancelling = false;
-      this.cdr.detectChanges();
+    } catch (e) {
+      this.ui.error(errorMessage(e));
     }
-  }
-
-  // Leer datos del historial
-  parseHistoryData(data: any): any {
-    if (data === null || data === undefined) return {};
-
-    if (typeof data === 'object') return data;
-
-    try {
-      const parsed = JSON.parse(data);
-      return parsed && typeof parsed === 'object' ? parsed : {};
-    } catch {
-      return {};
-    }
-  }
-
-  // Obtener valor del historial
-  historyValue(h: any, field: string, previous = false): any {
-    const data = this.parseHistoryData(previous ? h.previous_data : h.new_data);
-    return data[field];
-  }
-
-  // Mostrar monto del historial
-  historyAmount(h: any, previous = false): string {
-    const amount = this.historyValue(h, 'amount', previous);
-    return amount === null || amount === undefined
-      ? '—'
-      : new Intl.NumberFormat('es-MX', {
-          style: 'currency',
-          currency: 'MXN',
-        }).format(Number(amount));
-  }
-
-  // Mostrar estado del historial
-  historyStatus(h: any, previous = false): string {
-    const status = this.historyValue(h, 'status', previous);
-    return status === 'cancelled'
-      ? 'Cancelado'
-      : status === 'active'
-        ? 'Activo'
-        : '—';
   }
 }

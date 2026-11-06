@@ -102,4 +102,40 @@ export class Products {
     );
     return response.data;
   }
+  // Subir o reemplazar la foto del producto (multipart/form-data)
+  async uploadImage(id: number, image: Blob) {
+    const form = new FormData();
+    form.append('id', String(id));
+    form.append('image', image, `producto-${id}.jpg`);
+    const response = await axios.post(`${this.apiUrl}/products/upload-image.php`, form, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      timeout: 30000,
+    });
+    return response.data;
+  }
+
+  // Quitar la foto del producto
+  async deleteImage(id: number) {
+    return (await axios.delete(`${this.apiUrl}/products/delete-image.php`, {
+      data: { id }, headers: this.getHeaders(),
+    })).data;
+  }
+
+  // Dirección pública de la foto guardada en el servidor
+  imageUrl(imagePath: string | null | undefined): string | null {
+    if (!imagePath) return null;
+    if (/^(data:|blob:|https?:)/.test(imagePath)) return imagePath;
+    try {
+      return `${this.apiUrl}/${imagePath.replace(/^\/+/, '')}`;
+    } catch {
+      return null;
+    }
+  }
+
+  // Eliminar products de manera definitiva
+  async delete(id: number) {
+    return (await axios.delete(`${this.apiUrl}/products/delete.php`, {
+      data: { id }, headers: this.getHeaders(),
+    })).data;
+  }
 }

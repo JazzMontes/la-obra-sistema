@@ -1,217 +1,190 @@
-// Define la apariencia de la pantalla de inicio de sesión.
-
-// Colores de la pantalla
-:host {
-  --yellow: #ffc526;
-  --bg: #090b0d;
-  --panel: #14171a;
-  --border: #292e33;
-  --text: #f8f8f6;
-  --muted: #9ca3aa;
-}
-
-// Encabezado
-ion-header {
-  display: none;
-}
-
-// Fondo y contenido
-ion-content {
-  --background:
-    radial-gradient(
-      circle at 50% 10%,
-      rgba(255, 197, 38, 0.13),
-      transparent 26%
-    ),
-    linear-gradient(135deg, #080a0c, #101316 55%, #090b0d);
-  --color: var(--text);
-}
-
-ion-content::part(scroll) {
+.login {
+  display: grid;
   min-height: 100%;
-  display: flex;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.hero {
+  display: none;
   flex-direction: column;
-  justify-content: center;
-  width: min(100% - 32px, 460px);
-  margin: 0 auto;
-  padding: 56px 0;
+  justify-content: space-between;
+  padding: 40px;
+  background: var(--brand);
+  color: var(--ink);
+
+  @media (min-width: 900px) {
+    display: flex;
+  }
 }
 
-h1 {
-  margin: 0 0 30px;
-  text-align: center;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: var(--text);
-}
-
-h1::before {
-  content: 'LA OBRA';
-  display: block;
-  color: var(--yellow);
-  font-size: 0.42em;
-  letter-spacing: 0.22em;
-  margin-bottom: 10px;
-}
-
-// Campos y registros
-ion-item {
-  --background: #15191d;
-  --color: var(--text);
-  --border-color: transparent;
-  --highlight-color-focused: var(--yellow);
-  --padding-start: 18px;
-  --inner-padding-end: 18px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-bottom: 12px;
-  min-height: 68px;
-}
-
-ion-input {
-  --color: var(--text);
-  --placeholder-color: #727980;
-}
-
-ion-text p {
-  background: rgba(255, 75, 75, 0.08);
-  border: 1px solid rgba(255, 75, 75, 0.2);
-  color: #ff8585;
-  padding: 11px 14px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-}
-
-// Botones
-ion-button {
-  --background: var(--yellow);
-  --background-hover: #ffd24f;
-  --color: #101214;
-  --border-radius: 13px;
-  --box-shadow: 0 12px 30px rgba(255, 197, 38, 0.13);
-  margin-top: 10px;
-  min-height: 52px;
-  font-weight: 900;
-  text-transform: none;
-}
-
-.server-settings-toggle {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 8px;
-}
-
-.server-settings-toggle ion-button {
-  --background: transparent;
-  --background-hover: rgba(255, 197, 38, 0.08);
-  --color: var(--muted);
-  --box-shadow: none;
-  min-height: 36px;
-  margin: 0;
-  font-size: 0.83rem;
-  font-weight: 600;
-}
-
-.server-settings-toggle ion-icon {
-  color: var(--yellow);
-}
-
-.server-settings {
-  border: 1px solid var(--border);
-  background: var(--panel);
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-.server-settings > p {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin: 0 0 12px;
-}
-
-.server-settings ion-button {
-  margin-top: 8px;
-}
-
-/* Estado compacto y diagnóstico opcional */
-.connection-status {
-  margin: 14px 0 12px;
-}
-
-.connection-summary {
+.hero-brand,
+.mobile-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  min-height: 32px;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--brand);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.hero-copy {
+  max-width: 440px;
+
+  h2 {
+    font-size: 34px;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    margin: 0 0 14px;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+    color: rgba(23, 24, 26, 0.75);
+  }
+}
+
+.hero-foot {
+  font-size: 13px;
+  color: rgba(23, 24, 26, 0.6);
+}
+
+.panel {
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  padding-top: calc(32px + var(--ion-safe-area-top, 0px));
+}
+
+.form {
+  width: min(400px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h1 {
+    margin: 8px 0 0;
+    font-size: 26px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+  }
+
+  > p {
+    margin: -10px 0 4px;
+  }
+}
+
+.mobile-brand {
+  margin-bottom: 8px;
+
+  .mark {
+    background: var(--brand);
+    color: var(--ink);
+  }
+
+  @media (min-width: 900px) {
+    display: none;
+  }
+}
+
+.eye {
+  cursor: pointer;
+  border-left: 0 !important;
+  background: var(--surface) !important;
+
+  app-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.tech-link {
+  display: block;
+  margin-top: 6px;
+}
+
+pre {
+  margin: 8px 0 0;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--mono);
+  color: var(--text-2);
+}
+
+.server {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.server-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+
+  .chev {
+    width: 16px;
+    height: 16px;
+    color: var(--muted);
+    transition: transform 0.15s;
+  }
+}
+
+.server.open .chev {
+  transform: rotate(90deg);
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #858c95;
+  background: var(--faint);
+  flex-shrink: 0;
+
+  &.ok {
+    background: var(--success);
+  }
+
+  &.fail {
+    background: var(--danger);
+  }
+
+  &.warn {
+    background: var(--warning);
+  }
 }
 
-.status-dot.checking {
-  background: var(--yellow);
-}
-
-.status-dot.connected {
-  background: #42bd83;
-}
-
-.status-dot.failed {
-  background: #ff7777;
-}
-
-.status-label {
-  color: var(--muted);
-  font-size: 0.78rem;
-  flex: 1;
-}
-
-.details-toggle {
-  border: 0;
-  background: transparent;
-  color: var(--yellow);
-  cursor: pointer;
-  font-size: 0.77rem;
-  padding: 7px 0 7px 8px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.details-toggle:focus-visible {
-  outline: 2px solid var(--yellow);
-  outline-offset: 3px;
-  border-radius: 3px;
-}
-
-.connection-details {
-  margin-top: 9px;
-  padding: 12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.details-heading {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
-}
-
-.connection-details pre {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  max-height: 200px;
-  overflow: auto;
-  margin: 0;
-  font-size: 0.72rem;
-  color: var(--muted);
+.server-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 14px 14px;
 }

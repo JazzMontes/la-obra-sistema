@@ -1,112 +1,61 @@
-// Consulta el perfil y lee los datos de una imagen seleccionada.
-
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+// Perfil: nombre, usuario y correo de la cuenta; acceso al cambio de contraseña.
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Auth } from '../../services/auth';
-import * as exifr from 'exifr';
-import { addIcons } from 'ionicons';
-import {
-  personOutline,
-  cameraOutline,
-  atOutline,
-  mailOutline,
-  shieldCheckmarkOutline,
-  documentTextOutline,
-  imageOutline,
-  bluetoothOutline,
-} from 'ionicons/icons';
+import { UiService } from '../../services/ui';
+import { errorMessage } from '../../services/api';
+import { autoRefresh } from '../../services/render';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-profile',
-  templateUrl: './profile.page.html',
-  styleUrls: ['./profile.page.scss'],
+  templateUrl: 'profile.page.html',
+  styleUrls: ['profile.page.scss'],
   standalone: false,
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage {
+  // Actualiza la vista al terminar peticiones y al entrar a la pantalla (Angular sin zone.js)
+  private readonly refresher = autoRefresh();
 
-  // Datos y estado
   user: any = null;
-  imageUrl: string | null = null;
-  imageName = '';
-  metadata: Record<string, unknown> | null = null;
-  error = '';
-  loading = false;
+  form = { name: '', username: '', email: '' };
+  saving = false;
 
-  // Dependencias e inicio
-  constructor(
-    private auth: Auth,
-    private router: Router
-  ) {
-    addIcons({
-      personOutline,
-      cameraOutline,
-      atOutline,
-      mailOutline,
-      shieldCheckmarkOutline,
-      documentTextOutline,
-      imageOutline,
-      bluetoothOutline,
-    });
-  }
+  constructor(private auth: Auth, private ui: UiService) {}
 
-  // Inicialización
-  async ngOnInit() {
-    if (!this.auth.isLoggedIn()) {
-      await this.router.navigate(['/login']);
-      return;
-    }
-
-    this.user = this.auth.getStoredUser();
-
+  async ionViewWillEnter() {
+    this.fill(this.auth.getStoredUser());
     try {
-      const result = await this.auth.getMe();
-
-      if (result.success) this.user = result.user;
+      const r = await this.auth.getMe();
+      if (r.user) this.fill(r.user);
     } catch {
-      /* Mostrar información de sesión guardada si la API no responde. */
+      // Se muestra lo guardado en el dispositivo
     }
   }
 
-  // Leer imagen seleccionada
-  async selectImage(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+  private fill(u: any) {
+    this.user = u;
+    this.form = { name: u?.name ?? '', username: u?.username ?? '', email: u?.email ?? '' };
+  }
 
-    if (!file) return;
+  get initials(): string {
+    return String(this.user?.name || '?').split(/\s+/).map((w: string) => w[0]).slice(0, 2).join('');
+  }
 
-    this.error = '';
-
-    if (!file.type.startsWith('image/')) {
-      this.error = 'Selecciona un archivo de imagen.';
+  async save() {
+    if (this.saving) return;
+    if (!this.form.name.trim() || !this.form.username.trim() || !this.form.email.trim()) {
+      this.ui.error('Completa nombre, usuario y correo');
       return;
     }
-
-    this.loading = true;
-
+    this.saving = true;
     try {
-      if (this.imageUrl) URL.revokeObjectURL(this.imageUrl);
-
-      this.imageUrl = URL.createObjectURL(file);
-      this.imageName = file.name;
-      const exif = await exifr.parse(file, { gps: false }).catch(() => null);
-      this.metadata = {
-        nombre: file.name,
-        tipo: file.type,
-        tamanoBytes: file.size,
-        ultimaModificacion: new Date(file.lastModified).toISOString(),
-        exif: exif || {},
-      };
-    } catch {
-      this.error = 'No se pudieron leer los metadatos.';
-      this.metadata = null;
+      const r = await this.auth.updateProfile(this.form.name, this.form.username, this.form.email);
+      if (r.user) this.fill(r.user);
+      this.ui.success('Perfil actualizado');
+    } catch (e) {
+      this.ui.error(errorMessage(e, 'No se pudo actualizar el perfil'));
     } finally {
-      this.loading = false;
-      input.value = '';
+      this.saving = false;
     }
-  }
-
-  // Mostrar metadatos
-  get metadataText(): string {
-    return JSON.stringify(this.metadata, null, 2);
   }
 }
